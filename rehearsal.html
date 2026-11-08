@@ -6,6 +6,58 @@
 <title>쇼핑앱 AI 추천 경험 연구</title>
 <!--
   2조 SBCX 실험물 v17 (팀 V13_FB_1(v16.1 + Firebase) 바탕 + 피드백 반영, 2026-11-04)
+  V22_FB_22 (11/8, 허준영): 파일럿 링크(?pilot=1 · 칸 고정 없음 · 리허설 아님)는 자동 균형 배정 — 시점(사전/사후) × 반복(반복/한 번만) 네 묶음 중 적게 배정된 묶음(같으면 무작위)을 고르고,
+       그 시점의 8칸 중 적게 쓰인 칸을 고름(CONFIG.PILOT_BALANCE · meta/pilotAssign). 8명이면 사전 4 · 사후 4, 반복 4 · 한 번만 4(묶음마다 2). 링크에 &retry=… 를 붙일 필요 없음(붙이면 그 값이 우선 · 시점만 균형)
+       · 파일럿은 이제 본 설문 칸 수(meta/cellCounts)를 올리지 않음 · 기록: S.retryAuto.source 'firebase-pilot' · 로그 pilot_assign · 참가자 화면 · 문항 · 저장 열은 FB_21과 같음
+  V22_FB_21 (11/8, 아영 · Claude): 22번(Q29 · X2 시점 조작점검)을 원래 문항(v22까지) 바탕으로 다시 — 아영 님 요청('화면 내용을 묻는 FB_7 문항은 시점 점검이 어렵다')
+       · 원래 '이번 과업에서 나는' ① 추천을 받기 전에 정했다 ② 추천을 본 뒤에 고쳤다 (파일럿 8과업 중 4개 오답 · 수정 목록 2번)
+       · → '이번 쇼핑에서 나는' ① 추천 상품을 보기 전에 정했다 ② 추천 상품을 본 뒤에 고쳤다
+         · '추천을 받기 전에' → '추천 상품을 보기 전에': 홈 버튼이 [추천받기]라 사전 집단도 '추천을 받은 뒤 정했다'고 느낀 오답 원인만 고침 · 두 보기를 같은 '추천 상품을 보다'로 맞춤
+         · '이번 과업' → '이번 쇼핑'(참여자 화면 · 21번 줄기와 같은 말 · 21번 줄기는 FB_7부터 달라서 같은 줄기 혼동은 없음) · '정했다 / 고쳤다'는 원래 그대로
+       · 코드 pre / post · 열 Q29 · 정답 그대로 · [다시 해 보기]를 한 사전 참여자는 2회차 전에 결과를 봤으므로 Q29_ok를 n_retry로 나눠 볼 것
+       · 장표 A11-3 · 5.2 · 코드북 · 수정 기록 D27 같이 고치기
+  V22_FB_20 (11/8, 아영 · Claude): [확인필요] 6건 모두 교수님 · 팀 결정 쪽으로(아영 님 11/8 '그대로 둔 것 없이 모두 반영')
+       · D38 홈 반짝임 끔(HOME_NUDGE_SEC 10 → 0) — '손가락만'(D22 · FB_3–FB_7과 같음). 20초 손가락 · nudge_home 그대로 · shine_home 열은 반짝임을 켤 때만
+       · D40 사전 결과 '반영' 딱지 없앰(BADGE_PRE · BADGE_PRE_ALL → false) — 교수님 11/6 '사전은 위 문구, 사후는 바뀐 부분에 딱지'(FB_2–FB_9와 같음)
+       · D41 결정 결과는 맞지 않는 상품만 교체(D_REPLACE_ALL → false · decisionFill) — 교수님 v22. 행동 결과는 그대로 6개 모두(11/5 피드백)
+         · n_mismatch 열은 6개 모두 교체를 켤 때만(지금은 n_replaced = 걸린 상품 수)
+       · D45 튜토리얼 [건너뛰기] 되살림(TUT_SKIP → true) — 팀 메모 '보류'(FB_10까지와 같음)
+       · D44 상품 아래 버튼 [카디건 모두 제외] → [이 종류 제외] · [모노데이즈 모두 제외] → [이 브랜드 제외](FB_10까지와 같음 · 사전검사에서 반응 확인)
+         · 초록 조건 딱지도 버튼에 맞춰 [크루넥 모두 제외] → [크루넥 제외](FB_12를 되돌림) · CONFIG.EX_BTN_ALL true면 둘 다 '모두 제외'로
+       · D35(제한 없음)는 FB_19 그대로
+  V22_FB_19 (11/8, 아영 · Claude): [확인필요] 6건(D35 · D38 · D40 · D41 · D44 · D45) 점검
+       · D35 조작 개수: MAX_OPS 3 → 0(제한 없음 · 교수님 11/5 D15로 되돌림). 3개 제한은 결정에서만 '3개까지 뺄 수 있어요'로 막혀서
+         4번 '원하는 만큼 추천을 바꿀 수 있었다'(M1)를 결정 쪽만 낮출 수 있음(행동은 조건이 3개뿐이라 막히는 일이 없음). 결정은 종류 · 브랜드를 다 뺄 수 없고 상품이 모자라는 조합만 막음(exclBlock)
+       · D38 홈 반짝임: 화면은 그대로(10초 반짝임 + 20초 손가락). 기록만 나눔 — nudge_home = 손가락(20초, D22 · 코드북 뜻 그대로)으로 되돌리고, 반짝임은 새 열 shine_home
+         (V22_FB_8–18 행의 nudge_home은 반짝임 기준이었음)
+       · D41 결정 6개 모두 교체: 그대로(아영 님 11/7) · 새 열 n_mismatch = 첫 추천 6개 중 고른 것에 걸린 상품 수(결정) — 6개 모두 교체라 n_replaced가 늘 6이어서, 예전 규칙의 교체 수를 따로 남김
+       · D40 · D44 · D45: 화면 그대로(BADGE_PRE · BADGE_PRE_ALL · TUT_SKIP 스위치로 되돌릴 수 있음) — 교수님 · 팀 확인 대기
+  V22_FB_18 (11/8, 아영 · Claude): 과업 안내(4.5 ⑤) 문장 다시 — 아영 님 결정(11/8)
+       · 'AI 추천을 맞춰 보세요. 살 상품을 하나 고를 필요는 없어요.' → '상황 속 내가 되어 실제로 쇼핑하듯 AI 추천을 맞춰 보세요.'(몰입은 살리고 '구매'는 넣지 않음 — 탐색형 상황 '딱히 살 생각은 없었는데'와 맞게 · W 조작 유지)
+       · 준비 화면 '할 일' 카드 · 네 칸 같음(4.4-5 그대로) · 장표 4.5 ⑤ 같이 고치기
+  V22_FB_17 (11/8, 아영 · Claude): 과업 안내(4.5 ⑤)에 한 줄 — 수정 목록 4번(R020 '이거 고르면 되는 거죠' · 과업을 '마음에 드는 것을 고르는 일'로 설명) · 아영 님 요청
+       · 'AI 추천을 맞춰 보세요. 다 됐으면 [완료]를 누르세요.' → 'AI 추천을 맞춰 보세요. 살 상품을 하나 고를 필요는 없어요. 다 됐으면 [완료]를 누르세요.'
+         (준비 화면 '할 일' 카드 · 튜토리얼 '오늘의 미션' 장은 지금 안 씀 · 네 칸 같음 → 4.4-5 그대로 · '살 상품을'은 행동 상자 '원하는 조건을 골라 주세요'와 헷갈리지 않게)
+       · 장표 4.5 ⑤ 과업 안내 문장 같이 고치기 · 인터뷰 진행 원고(과업 이해 질문을 안내 화면 직후로)는 실험물 밖
+  V22_FB_16 (11/8, 아영 · Claude): 8번(Q15 · M2) 문구 — 수정 목록 1번(R020) · 아영 님 요청
+       · '무엇을 빼거나 바꿀지 정하는 데 애를 많이 써야 했다' → '추천 맞추기 화면에서 빼거나 바꿀 것을 정하는 데 애를 많이 써야 했다'
+         ('무엇을 … 정하다'가 '무엇을 살지(쇼핑 목적)'로 읽힐 여지를 없앰 · 21번 줄기와 같은 '추천 맞추기 화면' · 핵심 '정하는 데 애를 많이 써야 했다'는 그대로 · '빼거나 바꿀'은 화면 안내 동사라 네 칸 같음)
+       · 열 이름 Q15 · 7점 척도 그대로 — 장표 A11 · 코드북 문구만 같이 고치기
+  V22_FB_15 (11/8, 아영 · Claude): 사전 설문 3번(ATT0 · '5'를 골라 주세요)에서 5가 아니면 [다음]을 누를 때 참여 종료
+       · 나이 · 구매 0회와 같은 종료 화면(screenOut) · 종료 이유 screenReason = 'att' · 응답 행(responses)은 안 올림 · live/participants에 상태만
+       · 종료 문구는 일반 문구('참여 조건에 해당하지 않아…') — 주의 점검 이유는 말하지 않음(5.4-2 진행 원칙과 같게)
+       · ATT0은 원래 '제외 기준'(11/5 피드백)이라 빼는 사람은 같고, 빼는 시점만 분석 때 → 그 자리로 · CONFIG.SCREEN_ATT0 false면 예전처럼 기록만
+  V22_FB_14 (11/8, 아영 · Claude): 21 · 22번(조작점검) 화면에도 [화면 다시 보기] — 수정 목록 P03 줄 · 아영 님 결정(11/8)
+       · 과업마다 21 · 22번 화면 위에 '방금 추천을 맞춘 화면을 떠올리며 답해 주세요.' + [화면 다시 보기] → 추천 맞추기 화면(잠김)을 띄움(4번 M1 화면과 같은 화면 · 네 칸 같음)
+       · v20 결정(조작점검은 화면 없이 기억으로)을 바꿈 → 21 · 22번이 '화면을 보고 맞히기'가 될 수 있음: 장표 5.4 · 사전등록의 조작점검 설명 · 정답률 모니터링(첫 100명 < 70%) 함께 고치기
+       · 기록: taskN_n_review_mc = 21 · 22번 화면에서 다시 보기를 누른 횟수(n_review에도 포함) → 정답률을 '안 봄 / 봄'으로 나눠 볼 수 있음 · CONFIG.REVIEW_MC false면 v20처럼 없음
+       · 결정 · 행동 선호(26번)는 그대로 버튼 없음
+  V22_FB_13 (11/8, 아영 · Claude): 인지 인터뷰 R020 피드백 — 수정 목록 5 · 9번(25번 '앞의 상황')
+       · 25번(Q31) '앞의 상황은 실제로 있을 법한 상황이었다' → '두 번의 쇼핑 상황은 실제로 있을 법했다'
+         (R012 · R020 두 명이 '첫 번째인지 두 번째인지' 되물음 = 5.4-2 기준 2명 · 수정 목록 25번에 미리 정해 둔 문구 그대로 · 화면 안내 '두 번의 쇼핑을 떠올리며'와 맞춤)
+       · 같은 화면 파일럿 문항(XIMM) '앞의 쇼핑을…' → '두 번의 쇼핑을…'(같은 이유 · ?pilot=1에서만 보임)
+       · 열 이름(Q31 · XIMM) · 7점 척도 그대로 — 장표 A11 · 코드북 문구만 같이 고치면 됨
+       · R020 나머지 줄(7–9 · 14–16 · 20 · 21 · 22번 · 브랜드 친숙도 · 안내 화면)은 1명 · 뜻은 맞게 이해 · 사전검사 확인 줄이라 화면 · 문항 그대로
   V22_FB_12 (11/7, 아영 · Claude): 초록 조건 딱지도 버튼과 같은 말로
        · '내가 고른 조건'(사후 추천 맞추기) · '반영한 조건'(네 칸 결과) 초록 딱지: [크루넥 제외] → [크루넥 모두 제외] · [모노데이즈 제외] → [모노데이즈 모두 제외]
          (exTag · 네 칸 같음 · 행동 딱지 #레귤러 등은 그대로) — 응답 행 result_tags 값은 예전과 같게 'OO 제외'로 기록(코드북 그대로)
@@ -963,7 +1015,7 @@ body.tutm #top{display:none}
    설정
    ========================================================= */
 const CONFIG = {
-  STUDY_VERSION: 'SBCX-2조-v22.11 (2026-11-07)',   // v20: 11/5 교수님 구두 피드백 + W10 문항(A11 W10) 반영
+  STUDY_VERSION: 'SBCX-2조-v22.21 (2026-11-08)',   // v20: 11/5 교수님 구두 피드백 + W10 문항(A11 W10) 반영
   CLUX_STAGE_NAMES: false,      // true면 위쪽 단계 이름을 CLUX 원래 이름(리서치 해석·문제 정의·아이데이션·문서화)으로 표시
   CONSENT_VERSION: 'consent-v3',   // v3: 번호 수집 [선택](보상 추첨용), 중복 참여 확인 문구 뺌
   SERVER_URL: '',               // Google Apps Script 웹 앱 주소. 비우면 이 브라우저에만 저장
@@ -971,6 +1023,7 @@ const CONFIG = {
     apiKey: 'AIzaSyBn2U9ttAK7YB1s_uNAidPHn8B6M6CigZA', projectId: 'moa-t2-study', appId: '1:820807917036:web:c77c2761d3624e1dc1b4c9',
     databaseURL: 'https://moa-t2-study-default-rtdb.asia-southeast1.firebasedatabase.app' },
   FIREBASE_ASSIGN: true,        // true면 Firebase에서 16칸을 가장 적게 찬 칸부터 고르게 배정 · 참여 번호 순번 (주소 ?cell= 이 있으면 칸은 그게 우선)
+  PILOT_BALANCE: true,          // V22_FB_22(11/8): 파일럿 링크는 시점 × 반복 네 묶음을 번갈아 채우고 그 시점의 8칸 중 적게 쓰인 칸으로(meta/pilotAssign · 본 설문 칸 수는 안 올림). false면 예전처럼 16칸 배정 + ?retry=auto 로만 균형
   PHONE_DUP_BLOCK: false,       // true면 같은 번호(지문)로 이미 끝낸 기록이 Firebase에 있을 때 막음. V13 결정(번호는 추첨에만)대로 기본은 false — 연구자 화면에 '번호 중복' 표시만
   SURVEY_END_TEXT: '11월 22일', // 디브리핑: 이 날짜까지 연구 내용 비밀 (교수님 7쪽 · 장표 50: '11월 18일' → 22일)
   WITHDRAW_BY: '11월 25일',     // 디브리핑: 응답 철회 요청 기한 (분석 시작 11/26 전 · 조에서 확인)
@@ -980,21 +1033,23 @@ const CONFIG = {
   SCENARIO_SECONDS: 10,         // 상황 카드 [다음] 활성화까지
   SCENARIO_REPEAT_SECONDS: 5,   // 과업 2 앞 상황 카드
   RESULT_LOADING_MS: 1500,      // ▼T1 뒤 결과가 나오기 전 로딩
-  MAX_OPS: 3,                   // V22_FB_5(11/7 설계 기준 점검 ④): 두 유형 모두 3개까지(행동 = 조건 3개와 같은 상한, 장표 4.4-5 X1 '같게 둘 것'). v22에서는 0 = 제한 없음(결정은 후보를 다 뺄 수 없고, 상품이 모자라는 조합만 막음). 숫자를 넣으면 그 개수까지
-  MAX_OPS_PRE_A: 0,             // 0 = MAX_OPS 따름(네 칸 모두 3개까지). v21에서는 3
+  MAX_OPS: 0,                   // V22_FB_19(11/8): 0 = 제한 없음(교수님 11/5 D15) — 3개 제한은 결정에서만 막혀 M1(4번)을 결정 쪽만 낮출 수 있어 되돌림. 예전: V22_FB_5(11/7 설계 기준 점검 ④): 두 유형 모두 3개까지(행동 = 조건 3개와 같은 상한, 장표 4.4-5 X1 '같게 둘 것'). v22에서는 0 = 제한 없음(결정은 후보를 다 뺄 수 없고, 상품이 모자라는 조합만 막음). 숫자를 넣으면 그 개수까지
+  MAX_OPS_PRE_A: 0,             // 0 = MAX_OPS 따름(V22_FB_19부터 네 칸 모두 제한 없음). v21에서는 3
   BADGE_ALL: false,             // v21(11/6 요청): 결과 화면 초록 '반영' 표시를 6개 모두에. false = 새로 바뀐 상품에만(V20)
-  BADGE_PRE: true,              // V22_FB_10(11/7 아영 님 결정): 사전 결과 화면에도 '반영' 표시. false = 사전은 표시 없이 위 문구만(11/5 · W9 교수님 피드백, FB_2–FB_9)
-  D_REPLACE_ALL: true,          // V22_FB_11(11/7 아영 님): 결정 결과도 6개 모두 새 상품(같은 종류 · 뺀 종류 자리는 남은 종류). false = 맞지 않는 상품만 교체(v22 · 교수님 11/6)
+  BADGE_PRE: false,             // V22_FB_20(11/8 · D40): 교수님 11/6대로 사전은 표시 없이 위 문구만. 예전 V22_FB_10(11/7 아영 님 결정): 사전 결과 화면에도 '반영' 표시. false = 사전은 표시 없이 위 문구만(11/5 · W9 교수님 피드백, FB_2–FB_9)
+  D_REPLACE_ALL: false,         // V22_FB_20(11/8 · D41): 교수님 v22대로 맞지 않는 상품만 교체. 예전 V22_FB_11(11/7 아영 님): 결정 결과도 6개 모두 새 상품(같은 종류 · 뺀 종류 자리는 남은 종류). false = 맞지 않는 상품만 교체(v22 · 교수님 11/6)
   DONE_DELAY_SEC: 5,            // V22_FB_11 엑셀 7번: 결과가 뜬 뒤 [완료]를 누를 수 있기까지(초) · 네 칸 같음 · 0 = 바로
-  TUT_SKIP: false,              // V22_FB_11 엑셀 8번: 튜토리얼 [건너뛰기] 보이기. false = 없음(한 장씩)
-  BADGE_PRE_ALL: true,          // V22_FB_10: 사전은 6개 모두에(바뀐 상품에만 붙이면 사전 참여자가 못 본 첫 목록이 드러남). false = 사전도 바뀐 상품에만
-  HOME_NUDGE_SEC: 10,           // V22_FB_8(11/7 요청): 홈 [추천받기]를 이 초 동안 안 누르면 반짝임(테두리 고리 없이) · 네 칸 같음 · 0 = 끄기. FB_3–FB_7은 0
+  EX_BTN_ALL: false,            // V22_FB_20(11/8 · D44): 상품 아래 버튼 · 초록 조건 딱지 글자. false = [이 종류 제외] · [이 브랜드 제외] / 딱지 [크루넥 제외](FB_10까지). true = [카디건 모두 제외] / 딱지 [크루넥 모두 제외](FB_11–19)
+  TUT_SKIP: true,               // 튜토리얼 [건너뛰기] 보이기. false = 없음(한 장씩) · V22_FB_20(11/8 · D45): 팀 메모 '보류'대로 되살림(V22_FB_11 엑셀 8번에서 false였음)
+  BADGE_PRE_ALL: false,         // BADGE_PRE가 true일 때만 씀 · V22_FB_20에서 BADGE_PRE와 함께 false. V22_FB_10: 사전은 6개 모두에(바뀐 상품에만 붙이면 사전 참여자가 못 본 첫 목록이 드러남). false = 사전도 바뀐 상품에만
+  HOME_NUDGE_SEC: 0,            // V22_FB_20(11/8 · D38): 0 = 반짝임 끔(손가락만 · D22). 예전 10 = V22_FB_8(11/7 요청): 홈 [추천받기]를 이 초 동안 안 누르면 반짝임(테두리 고리 없이) · 네 칸 같음 · 0 = 끄기. FB_3–FB_7은 0
   // HOME_NUDGE_SEC_OLD: 10,           // v21(11/6 요청): 홈 [추천받기]를 이 초 동안 안 누르면 강조 + 반짝임(네 칸 같음). 0 = NUDGE_SEC 따름
   FINGER_SEC: 20,               // V22_FB_3(11/7 요청): 아무것도 누르지 않고 이 초가 지나면 누를 곳에 손가락(톡톡 누르는 모양)을 더해요 · 홈 · 추천 화면 · 네 칸 같은 초 · 모양. 0 = 끄기
   NUDGE_SEC: 0,                 // V22_FB_3(11/7): 테두리 강조 끔 — 손가락(FINGER_SEC 20초)만. 예전 값 20 · nudge_home · nudge_rec 기록은 손가락이 뜬 때로
   // NUDGE_SEC_OLD: 20,                // v20: 이 시간(초) 동안 누르지 않으면 누를 곳을 강조 + 말풍선(네 칸 같은 초·모양). 0 = 끄기
   RETRY_ON: true,               // 11/5 교수님 피드백(V22_FB_5: [다시 해 보기] = 네 칸 모두 홈부터 새로, 고른 것 비움 · 회차 기록 유지): 결과를 본 뒤 여러 번 고쳐 보기 → [완료] → [설문 시작하기]에서 잠금. 주소 ?retry=0 이면 한 번만 하는 버전(파일럿 비교용)
   REVIEW_ON: true,              // v20: 설문 화면의 [화면 다시 보기](잠긴 폰을 띄움, 누를 수는 없음). 조작점검 화면에는 없음
+  REVIEW_MC: true,              // V22_FB_14(11/8 아영 님 · P03): 21 · 22번(조작점검) 화면에도 [화면 다시 보기] — 추천 맞추기 화면(잠김). false = v20처럼 없음
   TAG_MODE: 'changed',          // 행동 태그: 'changed' = 바꾼 값만(11/5 피드백 6 · 네 칸 같게) · 'all' = 셋 다(아래 GREY 규칙)
   TAG_UNCHANGED_GREY: true,     // 결과 태그: true면 바꾼 값만 초록, 그대로인 값 회색(본연구 방법 4.4-4). false면 셋 다 초록
   Q29_EACH_TASK: true,          // 29번(시점 조작점검): true = 과업 1·2 끝 모두(11/4 결정, 사전 49 · 사후 51문항) · false = 과업 2 끝 1번(A11-3 비고, 48 · 50문항)
@@ -1012,6 +1067,7 @@ const CONFIG = {
   PILOT_IMM: true,              // v22(11/6): 파일럿(?pilot=1)에서만 25번 화면(현실감)에 몰입 문항 XIMM을 더 물어요. 본 조사 링크에는 안 나와요
   PHONE_MAX_SCALE: 1.5,         // v22(11/6): 쇼핑 중 휴대폰을 창 높이에 맞춰 키우는 최대 배율(390×844 화면 기준)
   BLOCK_NARROW: true,           // 창 너비가 MIN_WIDTH 미만이면 진행을 막는 화면을 띄움 (장표 5.6 ①: PC 1280px 이상) — V16_FB 추가
+  SCREEN_ATT0: true,            // V22_FB_15(11/8 아영 님): 사전 설문 3번 주의 점검(ATT0)에서 5가 아니면 참여 종료. false = 기록만(분석 때 제외)
   SCREEN_NO_SHOP: true,         // 사전 설문 3번(최근 3개월 온라인 옷 구매)이 '0회'면 참여 종료. false = 끄기
   M1_1_SUBJECT: false,          // V22_FB_4: 4번(Q11)에 주어 '나는'. 사전검사(반복 버전 · ?retry=0 아님)에서 'AI가 바꿔 준다'로 읽은 사람이 2명 이상일 때만 true (장표 5.4-2 · 5.1 '각색')
   RESTART_BTN: false,           // V22_FB_2: 참여자 화면에서 [처음으로] 없앰 — 다시 시작하면 다른 칸으로 배정돼 두 조건을 다 보게 되므로(11/6 테스트 R003→R004). 결과에서 [이전 단계로]만 · 나머지는 앞으로만. 연구자 미리보기(?dev=1)에서는 그대로 보임
@@ -1193,7 +1249,7 @@ const BLOCKS = {
     {code:'Q13', text:'이 앱의 추천은 내가 손을 댈 수 없는 것처럼 느껴졌다', rev:true}]},
   M2:{ask:'결과보다 추천을 맞추던 과정을 떠올리며, 각 문장에 얼마나 동의하는지 골라 주세요.', items:[
     {code:'Q14', text:'추천을 내 뜻에 맞추는 데 정신적 노력이 많이 들었다'},
-    {code:'Q15', text:'무엇을 빼거나 바꿀지 정하는 데 애를 많이 써야 했다'},
+    {code:'Q15', text:'추천 맞추기 화면에서 빼거나 바꿀 것을 정하는 데 애를 많이 써야 했다'},   // V22_FB_16: '무엇을 빼거나 바꿀지' → 쇼핑 목적과 헷갈리지 않게(R020)
     {code:'Q16', text:'추천을 맞추는 동안 답답하거나 짜증이 났다'}]},
   FIT0:{items:[{code:'Q17', text:'처음 보여 준 6개는 지금 내 쇼핑에 잘 맞았다'}]},
   Y3:{items:[
@@ -1210,7 +1266,7 @@ const BLOCKS = {
     {code:'Q25', text:'이 추천은 지금 내 쇼핑에 잘 맞는다', v:'FIT'},
     {code:'Q26', text:'내가 빼거나 고른 것 때문에 추천 상품이 얼마나 바뀌었다고 느꼈나요?', l:'전혀 안 바뀌었다', r:'많이 바뀌었다', v:'CHG'},
     {code:'Q27', text:'최종 결과에 내가 뺀 것이나 고른 조건이 반영돼 있었다', opts:[['yes','예'],['no','아니오']], v:'REFL'}]},
-  REAL:{ask:'두 번의 쇼핑을 떠올리며, 각 문장에 얼마나 동의하는지 골라 주세요.', items:[{code:'Q31', text:'앞의 상황은 실제로 있을 법한 상황이었다'}]},
+  REAL:{ask:'두 번의 쇼핑을 떠올리며, 각 문장에 얼마나 동의하는지 골라 주세요.', items:[{code:'Q31', text:'두 번의 쇼핑 상황은 실제로 있을 법했다'}]},   // V22_FB_13: '앞의 상황은 … 상황이었다' → 수정 목록 25번 문구(R012 · R020 2명)
   XDELEG:{extra:true, items:[
     {code:'XDELEG1', text:'쇼핑할 때 무엇을 고를지 AI 추천에 맡기는 편이다'},
     {code:'XDELEG2', text:'AI가 골라 주면 따로 비교하지 않고 고르는 편이다'},
@@ -1221,13 +1277,13 @@ const BLOCKS = {
     {code:'XAIFAM3', text:'나는 AI가 어떻게 상품을 추천하는지 대략 알고 있다'}]},
   XATT3:{extra:true, items:[{code:'XATT3', text:"이 문항에는 '전혀 그렇지 않다'를 골라 주세요", att:1}]},
 };
-const XIMM = {code:'XIMM', text:'앞의 쇼핑을 실제로 하는 것처럼 몰입했다', v:'IMM'};   // v22: 파일럿(?pilot=1)에서만 25번 화면에(CONFIG.PILOT_IMM). A11에는 없어요
+const XIMM = {code:'XIMM', text:'두 번의 쇼핑을 실제로 하는 것처럼 몰입했다', v:'IMM'};   // V22_FB_13: '앞의' → '두 번의'(25번과 같게)   // v22: 파일럿(?pilot=1)에서만 25번 화면에(CONFIG.PILOT_IMM). A11에는 없어요
 const ATT30 = {code:'Q30', text:"이 문항에는 '2'를 골라 주세요", att:2, once:true};   // v20: 정답 5 → 2(T0와 같은 답을 기억으로 맞히지 않게), 두 과업 끝 · 민감도만   // 주의 점검 한 번. 위치는 CONFIG.ATT30_AT · 11/5부터 민감도 분석용
 const ATT0 = {code:'ATT0', text:"이 문항에는 '5'를 골라 주세요", att:5, once:true};    // 사전 설문(T0) 주의 점검 — 11/5 피드백: 이것으로 제외(번호 없이 W 조작점검 화면 끝)
 /* 과업 끝 조작점검. 유형(Q28) · 시점(Q29) 모두 과업마다(v15부터 시점도 과업 1 끝에서 묻기) */
 const MC_ITEMS = [
   {code:'Q28', v:'X1 유형 조작점검', q:'이번 쇼핑의 추천 맞추기 화면에서 내가 한 일은', fixedOpts:true, opts:[['D','원하지 않는 것을 뺐다'],['A','원하는 조건을 골랐다']]},   // V22_FB_7 수정 목록 1 · D26: 보기 = 두 유형 상자 제목의 동사('원하지 않는 것을 눌러 빼 주세요' · '원하는 조건을 골라 주세요', FB_5부터 결정 두 칸 같음)
-  {code:'Q29', v:'X2 시점 조작점검', q:'이번 쇼핑에서 빼거나 고를 때, 그 화면에', fixedOpts:true, opts:[['pre','가격이 붙은 추천 상품은 아직 없었다'],['post','가격이 붙은 추천 상품이 이미 나와 있었다']], once:!CONFIG.Q29_EACH_TASK},   // V22_FB_7 수정 목록 2 · D27: 줄기는 두 유형 동사(‘조건을 정할 때’는 행동 쪽 말이라 결정 칸에 안 맞음)   // once면 과업 2 끝에만, 열 이름 Q29
+  {code:'Q29', v:'X2 시점 조작점검', q:'이번 쇼핑에서 나는', fixedOpts:true, opts:[['pre','추천 상품을 보기 전에 정했다'],['post','추천 상품을 본 뒤에 고쳤다']], once:!CONFIG.Q29_EACH_TASK},   // V22_FB_21: 원래 문항('이번 과업에서 나는' · 추천을 받기 전에 정했다 / 추천을 본 뒤에 고쳤다) 바탕 · '받기' → '상품을 보기'([추천받기] 버튼과 헷갈림). FB_7–20: '이번 쇼핑에서 빼거나 고를 때, 그 화면에' · 가격이 붙은 추천 상품은 아직 없었다 / 이미 나와 있었다   // once면 과업 2 끝에만, 열 이름 Q29
 ];
 /* 결정·행동 선호(보조): 두 과업 끝에 한 번, 보기 순서 무작위(A11-3 비고). 28·29번은 ①② 순서 고정 */
 const PREF_ITEM = {code:'Q32', v:'결정·행동 선호(보조)', q:'다음에 쇼핑할 때 쓴다면 어느 방식을 고르겠어요?', opts:[['D','원하지 않는 것을 빼기'],['A','원하는 조건을 고르기']], once:true};   // V22_FB_7: 21번 보기와 같은 동사
@@ -1242,7 +1298,7 @@ const SCENARIO = {
   '탐색형':'딱히 살 생각은 없었는데 날이 추워져서, 요즘 어떤 니트가 있는지 둘러보고 싶어요. 마음에 드는 게 있으면 살 수도 있어요.',
 };
 const SCENARIO_END = "그래서 자주 쓰는 쇼핑앱 '모아'를 열었어요. 요즘 회색이나 검은색 같은 무채색 옷을 자주 찾아보고 담아 둬서 그 기록이 남아 있고, 모아 AI는 이 기록으로 내 취향을 반영해 추천해 줘요.";   // 본연구 방법 4.4-1 공통 문장
-const TASK_TEXT = 'AI 추천을 맞춰 보세요. 다 됐으면 [완료]를 누르세요.';   // 본연구 방법 4.5 ⑤ 과업 안내(두 집단 같음)
+const TASK_TEXT = '상황 속 내가 되어 실제로 쇼핑하듯 AI 추천을 맞춰 보세요. 다 됐으면 [완료]를 누르세요.';   // 본연구 방법 4.5 ⑤ 과업 안내(두 집단 같음) · V22_FB_17: 가운데 문장 추가(R020)
 /* 오른쪽 안내 멘트: 화면마다 누를 버튼에 맞춰요(세 집단 모두 같은 문장) */
 const TASK_STEPS = [
   {key:'home',   btn:'추천받기',        text:'홈에서 [추천받기]를 눌러 AI 추천을 열어 보세요'},
@@ -1374,7 +1430,7 @@ function buildSteps(){
     add({id:`K${n}_Y1`, kind:'scale', block:'Y1', task:n, view:'result', stage:sB, mode:SP, q:true, extra: (n === 2 && CONFIG.ATT30_AT !== 'end') ? ATT30 : null});   // 30번: 과업 2 결과 확인② 중간
     add({id:`K${n}_Y2`, kind:'scale', block:'Y2', task:n, view:'result', stage:sB, mode:SP, q:true});
     add({id:`K${n}_CHK`, kind:'scale', block:'CHK', task:n, view:'result', stage:sB, mode:SP, q:true});
-    add({id:`K${n}_MC`, kind:'mc', task:n, stage:sB, mode:SP, q:true});   // v20: 조작점검은 화면 다시 보기 없음
+    add(Object.assign({id:`K${n}_MC`, kind:'mc', task:n, stage:sB, mode:SP, q:true}, CONFIG.REVIEW_MC ? {view:'after'} : {}));   // v20: 조작점검은 화면 다시 보기 없음 → V22_FB_14: REVIEW_MC면 추천 맞추기 화면 다시 보기
     if (n === 1) add({id:'K1_W', kind:'scale', block:'WMC', stage:sB, mode:F, q:true});   // v20: W 조작점검 1문항(과업 1 끝 한 번)
   }
   // ⑦ 완료: 두 쇼핑 결과를 나란히 보며 주의 점검(Q30) · 현실감(Q31) → 결정·행동 선호(Q32)
@@ -1405,7 +1461,7 @@ function exLabel(e){
   return e.v;
 }
 /* V22_FB_12: 초록 조건 딱지 글자 — 종류 · 브랜드는 버튼과 같은 'OO 모두 제외'(상품 하나만 빼는 경우는 'OO 제외'). key = 응답 행에 남기는 예전 글자 */
-function exTag(e){ return exLabel(e) + (e.kind === 'product' ? ' 제외' : ' 모두 제외'); }
+function exTag(e){ return exLabel(e) + (e.kind !== 'product' && CONFIG.EX_BTN_ALL ? ' 모두 제외' : ' 제외'); }   // V22_FB_20: EX_BTN_ALL false면 FB_10까지처럼 'OO 제외'
 function pickBrand(set, exBrands, orig, used){
   const ok = b => !exBrands.includes(b) && b !== orig;
   for (const b of set.brandFallback) if (ok(b) && !(used || []).includes(b)) return b;
@@ -1588,8 +1644,8 @@ function productCard(p, opts){
   let btns = '';
   if (opts.buttons){
     const sOn = opts.styleOn, bOn = opts.brandOn;   // 11/5 피드백 1: 사후도 사전과 같은 단위(종류 · 브랜드)로 뺌
-    btns = `<button class="pbtn ${sOn?'on':''}" data-act="ex-style" data-v="${esc(p.styles[0])}">${sOn?'종류 제외 취소':esc(styleName(p.styles[0])) + ' 모두 제외'}</button>
-            <button class="pbtn ${bOn?'on':''}" data-act="ex-brand" data-v="${esc(p.brand)}">${bOn?'브랜드 제외 취소':esc(p.brand) + ' 모두 제외'}</button>`;
+    btns = `<button class="pbtn ${sOn?'on':''}" data-act="ex-style" data-v="${esc(p.styles[0])}">${sOn?'종류 제외 취소':(CONFIG.EX_BTN_ALL ? esc(styleName(p.styles[0])) + ' 모두 제외' : '이 종류 제외')}</button>
+            <button class="pbtn ${bOn?'on':''}" data-act="ex-brand" data-v="${esc(p.brand)}">${bOn?'브랜드 제외 취소':(CONFIG.EX_BTN_ALL ? esc(p.brand) + ' 모두 제외' : '이 브랜드 제외')}</button>`;
   }
   return `<div class="pc ${off?'off':''}">
     <div class="pim"><img src="${IMG[p.id]}" alt="">${off?'<span class="exmark">제외</span>':''}</div>
@@ -2003,7 +2059,8 @@ function renderMC(st){
   const items = mcItems(st);
   if (!S.orders[st.id]){ S.orders[st.id] = items.map(m => m.code + ':' + (m.fixedOpts ? m.opts.map(o => o[0]) : shuffle(m.opts.map(o => o[0]))).join('/')); log('option_order', {order:S.orders[st.id].join(',')}); }
   const ord = {}; S.orders[st.id].forEach(x => { const [c,o] = x.split(':'); ord[c] = o.split('/'); });
-  let h = `<div class="ask">${st.pref ? '하나를 골라 주세요. 정답은 없어요.' : '방금 한 쇼핑에 맞는 것을 골라 주세요.'}</div>`;   // v20: 조작점검은 다시 보기 없이
+  let h = (!st.pref && st.view) ? `<div class="ctx"><span>${ctxLine(st)}</span>${reviewBtn(st)}</div>` : '';   // V22_FB_14: 21 · 22번에도 [화면 다시 보기](CONFIG.REVIEW_MC)
+  h += `<div class="ask">${st.pref ? '하나를 골라 주세요. 정답은 없어요.' : '방금 한 쇼핑에 맞는 것을 골라 주세요.'}</div>`;   // v20: 조작점검은 다시 보기 없이
   h += items.map(m => {
     const code = mcCode(st, m), v = ans(code);
     const opts = (ord[m.code] || m.opts.map(o => o[0])).map(k => m.opts.find(o => o[0] === k));
@@ -2444,11 +2501,11 @@ function scheduleNudge(t){
   }
   const ms = CONFIG.NUDGE_SEC * 1000;
   if (t.phase === 'home'){
-    // V22_FB_8: 홈은 10초(HOME_NUDGE_SEC) 동안 안 누르면 반짝임 — [다시 해 보기]로 돌아온 홈도 같음. nudge_home은 첫 방문(t_rec 전)만
+    // V22_FB_8: 홈은 10초(HOME_NUDGE_SEC) 동안 안 누르면 반짝임 — [다시 해 보기]로 돌아온 홈도 같음. 기록(V22_FB_19부터 shine_home)은 첫 방문(t_rec 전)만
     const hs = CONFIG.HOME_NUDGE_SEC || (t.m.t_rec == null ? CONFIG.NUDGE_SEC : 0);
     if (!hs) return;
     const first = t.m.t_rec == null;
-    nudgeTimer = setTimeout(() => { if (t.phase !== 'home' || curStep().kind !== 'app') return; t.nudge = 'home'; t.shine = true; if (first && t.m.nudge_home == null) t.m.nudge_home = elapsed(); log('nudge', {task:t.n, at:'home', round:(t.rounds || []).length + 1}); save(); renderLeft(); }, hs * 1000);
+    nudgeTimer = setTimeout(() => { if (t.phase !== 'home' || curStep().kind !== 'app') return; t.nudge = 'home'; t.shine = true; if (first && t.m.shine_home == null) t.m.shine_home = elapsed();   /* V22_FB_19: 반짝임은 shine_home, nudge_home은 손가락(20초) */ log('nudge', {task:t.n, at:'home', round:(t.rounds || []).length + 1}); save(); renderLeft(); }, hs * 1000);
   } else if (CONFIG.NUDGE_SEC && t.phase === 'rec' && t.m.t_first_op == null){
     nudgeTimer = setTimeout(() => { if (t.phase !== 'rec' || t.m.t_first_op != null || curStep().kind !== 'app') return; t.nudge = 'rec'; if (t.m.nudge_rec == null) t.m.nudge_rec = elapsed(); log('nudge', {task:t.n, at:'rec'}); save(); renderLeft(); }, ms);
   }
@@ -2512,7 +2569,7 @@ function openReview(st){
   const fit = () => { const ph = document.getElementById('rvph'); if (!ph) return; const k = Math.min(1, (innerHeight - 110) / 868, (innerWidth - 40) / 414); ph.style.width = Math.round(414 * k) + 'px'; ph.style.height = Math.round(868 * k) + 'px'; ph.firstElementChild.style.transform = `scale(${k})`; };
   fit(); wrap._fit = fit; addEventListener('resize', fit);
   wrap.addEventListener('click', e => { if (e.target === wrap || e.target.closest('[data-rv="close"]')) closeReview(); });
-  t.m.n_review = (t.m.n_review || 0) + 1; log('review', {task:t.n, view:st.view, step:st.id}); save();
+  t.m.n_review = (t.m.n_review || 0) + 1; if (st.kind === 'mc') t.m.n_review_mc = (t.m.n_review_mc || 0) + 1; log('review', {task:t.n, view:st.view, step:st.id}); save();   // V22_FB_14: 조작점검 화면에서 본 횟수 따로
 }
 function closeReview(){ const w = document.getElementById('rv'); if (w){ if (w._fit) removeEventListener('resize', w._fit); w.remove(); } }
 addEventListener('keydown', e => { if (e.key === 'Escape') closeReview(); });
@@ -2601,6 +2658,7 @@ function screenReason(){
   if (ans('Q2') < CONFIG.MIN_AGE) return 'age';
   if (CONFIG.MAX_AGE && ans('Q2') > CONFIG.MAX_AGE) return 'age_over';   // v22: 만 40세 이상
   if (CONFIG.SCREEN_NO_SHOP && ans('Q3') === '0회') return 'shop';
+  if (CONFIG.ATT0_ON && CONFIG.SCREEN_ATT0 && ans('ATT0') !== ATT0.att) return 'att';   // V22_FB_15: 3번 주의 점검
   return '';
 }
 function screenMsg(why){
@@ -2609,7 +2667,7 @@ function screenMsg(why){
   return '이 연구의 참여 조건에 해당하지 않아 참여가 끝났어요.';
 }
 function screenOut(why){
-  log('screen_out', {reason:why, age:ans('Q2'), shop:ans('Q3')});
+  log('screen_out', {reason:why, age:ans('Q2'), shop:ans('Q3'), att:ans('ATT0')});
   S.status = 'screened_out'; S.screenReason = why; delete S.phone; S.done = true; save();
   if (!DEV && CONFIG.ONE_TIME_ONLY) markDone({pid:S.pid, at:new Date().toISOString(), screened:true, reason:why});
   blockScreen(`<h2 class="pt">참여해 주셔서 감사합니다</h2><p class="lead">${screenMsg(why)} 적어 주신 번호와 응답은 저장하지 않았어요.</p>`);
@@ -2638,7 +2696,8 @@ async function assign(){
   if (CONFIG.FIREBASE_ASSIGN && !DEV && fbReady()){
     const r = await fbAssign(u ? u.cond.cell : null);
     if (r && r.dup) return {dup:true};
-    if (r){ fbDone = true; if (!u && r.cell >= 1 && r.cell <= 16){ S.cond = cellToCond(r.cell); S.assignSource = 'firebase'; } else if (!u && r.cellFail) S.assignSource = 'random(cell-fail)'; if (r.pid && !QS.get('pid')) S.pid = r.pid; }
+    if (r){ fbDone = true; if (!u && r.cell >= 1 && r.cell <= 16){ S.cond = cellToCond(r.cell); S.assignSource = r.pilotArm ? 'firebase-pilot' : 'firebase'; } else if (!u && r.cellFail) S.assignSource = 'random(cell-fail)'; if (r.pid && !QS.get('pid')) S.pid = r.pid;
+      if (r.pilotArm){ S.pilotArm = r.pilotArm; if (r.retryOn != null && !S.retryAuto){ S.retryAuto = {on:r.retryOn, source:'firebase-pilot', x2: S.cond.X2 === '사전' ? 'pre' : 'post', arm:r.pilotArm}; applyRetry(); } log('pilot_assign', {arm:r.pilotArm, cell:S.cond.cell, retryOn:CONFIG.RETRY_ON ? 1 : 0}); } }   // V22_FB_22
     else if (!u) S.assignSource = 'random(firebase-fail)';
   }
   if (!fbDone && CONFIG.SERVER_URL && !DEV){
@@ -2731,14 +2790,14 @@ function buildRow(){
     x.n_ops = m.n_ops; x.n_blocked = m.n_blocked; x.n_empty_submit = m.n_empty_submit; x.n_clicks = m.n_clicks;
     x.n_default_view = m.n_default_view || 0; x.default_view_sec = Math.round((m.default_view_ms || 0) / 100) / 10;
     x.final_n = opsCount(t); x.selection = selectionText(t);
-    x.n_reset = m.n_reset || 0; x.n_review = m.n_review || 0;   // v20: 선택 초기화 · 화면 다시 보기 횟수(자극 뒤 값 → 결과로만 보고)
-    x.nudge_home = m.nudge_home != null ? 1 : 0; x.nudge_rec = m.nudge_rec != null ? 1 : 0;   // v20: 클릭 유도가 떴는지
+    x.n_reset = m.n_reset || 0; x.n_review = m.n_review || 0; x.n_review_mc = m.n_review_mc || 0;   // v20: 선택 초기화 · 화면 다시 보기 횟수(자극 뒤 값 → 결과로만 보고)
+    x.nudge_home = m.nudge_home != null ? 1 : 0; if (CONFIG.HOME_NUDGE_SEC) x.shine_home = m.shine_home != null ? 1 : 0;   // V22_FB_20: 반짝임을 켤 때만 열 x.nudge_rec = m.nudge_rec != null ? 1 : 0;   // v20: 클릭 유도가 떴는지
     x.gate_sec = sec(m.t_done, m.t_gate);   // [완료] → [설문 시작하기]
     x.n_retry = m.n_retry || 0;   // [다시 해 보기] 누른 횟수(V22_FB_5: 네 칸 모두 홈부터 다시)(v21까지 [다시 해 보기]. 자극 뒤 값 → 결과로만 보고)
     x.n_rounds = t.result ? (t.rounds || []).length + 1 : (t.rounds || []).length;   // v22: 회차 수 = 결과를 받은 횟수(= n_retry + 1). 코드북 이름
     x.rounds = (t.rounds || []).map(r => r.selection).concat([selectionText(t)]).join(' > ');   // 회차별 선택, 마지막이 최종
     x.result_tags = t.result ? t.result.tags.map(g => g.key || g.label).join('|') : '';   // V22_FB_12: 화면은 'OO 모두 제외', 기록은 예전 그대로
-    x.replaced_pos = t.result ? t.result.replaced.join('|') : ''; x.n_replaced = t.result ? t.result.nReplaced : '';
+    x.replaced_pos = t.result ? t.result.replaced.join('|') : ''; x.n_replaced = t.result ? t.result.nReplaced : ''; if (CONFIG.D_REPLACE_ALL) x.n_mismatch = (t.result && t.type === 'D') ? t.result.nRemoved : '';   // V22_FB_19: 결정 — 첫 추천 중 고른 것에 걸린 상품 수
     x.result_ids = t.result ? t.result.items.map(i => i.id).join('|') : '';
     x.initial_scroll_max = S.cond.X2 === '사후' ? m.scroll_max : '';
     Object.keys(x).forEach(k => { r[p + k] = x[k]; });
@@ -2764,7 +2823,7 @@ function buildRow(){
 const META_LABEL = {retry_on:'[다시 해 보기] 허용(1 반복 · 0 한 번만) — 기본 1 · ?retry=0이면 0 · ?retry=auto면 시점마다 적게 배정된 쪽(로그 retry_assign)', pid:'참가자 ID', status:'상태(complete 완료 / restarted 재시작 / incomplete 미완료)', analysis_include:'분석 포함(1=완료이고 미리보기 아님)', restart_of:'이 세션 앞에 [처음으로]로 그만둔 세션 ID',
   study:'실험물 버전', dev:'연구자 미리보기(1)', started_at:'시작 시각', finished_at:'제출 시각', restarted_at:'재시작한 시각', total_sec:'전체 걸린 시간(초)',
   assign_source:'배정 방식', cell:'16칸 번호', group:'집단(1~4)', W:'쇼핑 목적', X2:'통제 시점', order:'과업 순서', Q32_task:'Q32에서 고른 방식이 몇 번째 과업이었는지(1/2)', Q32_opt_order:'Q32 보기 순서(D=빼기, A=조건 고르기)',
-  att_all_ok:'주의 점검 모두 통과(1)', n_reset:'[선택 초기화] 누른 횟수', n_review:'[화면 다시 보기] 누른 횟수', nudge_home:'홈 [추천받기] 반짝임이 떴는지(1) — 첫 방문 홈에서 10초 동안 안 누름(V22_FB_8부터 · FB_3–7은 20초 손가락)', nudge_rec:'추천 화면 클릭 유도가 떴는지(1)', gate_sec:'[완료] 뒤 [설문 시작하기]까지(초)', n_retry:'[다시 해 보기] 누른 횟수(네 칸 모두 홈부터 다시 · 고른 것 비움)', n_rounds:'회차 수(결과를 받은 횟수 = n_retry + 1)', rounds:'회차별 선택(> 로 구분, 마지막이 최종)', Q27_ok:"반영 확인 '예'(1)", Q28_ok:'유형 조작점검 정답(1)', Q29_ok:'시점 조작점검 정답(1)',
+  att_all_ok:'주의 점검 모두 통과(1)', n_reset:'[선택 초기화] 누른 횟수', n_review:'[화면 다시 보기] 누른 횟수', n_review_mc:'21 · 22번(조작점검) 화면에서 [화면 다시 보기] 누른 횟수(n_review에 포함 · V22_FB_14부터)', nudge_home:'홈 [추천받기] 손가락이 떴는지(1) — 아무것도 누르지 않고 20초(FB_3 기준 · D22) · V22_FB_8–18 행은 10초 반짝임 기준이었음', shine_home:'홈 [추천받기] 반짝임이 떴는지(1) — 첫 방문 홈에서 10초 동안 안 누름(V22_FB_19 행만 · FB_20부터 반짝임 꺼서 열 없음)', n_mismatch:'결정 — 첫 추천 6개 중 고른 것(뺀 종류 · 브랜드)에 걸린 상품 수(V22_FB_19 행만 · FB_20부터 맞지 않는 상품만 교체라 n_replaced와 같아서 열 없음)', nudge_rec:'추천 화면 클릭 유도가 떴는지(1)', gate_sec:'[완료] 뒤 [설문 시작하기]까지(초)', n_retry:'[다시 해 보기] 누른 횟수(네 칸 모두 홈부터 다시 · 고른 것 비움)', n_rounds:'회차 수(결과를 받은 횟수 = n_retry + 1)', rounds:'회차별 선택(> 로 구분, 마지막이 최종)', Q27_ok:"반영 확인 '예'(1)", Q28_ok:'유형 조작점검 정답(1)', Q29_ok:'시점 조작점검 정답(1)',
   n_leave:'화면 이탈 횟수(다른 탭·창으로 간 횟수, 제출 전까지)', leave_sec:'화면 이탈 시간 합(초)', leave_log:'이탈 기록: 화면ID@떠난 시각(초)+떠나 있던 시간(초)',
   task1_n_leave:'과업 1(T1·T2) 중 화면 이탈 횟수', task1_leave_sec:'과업 1(T1·T2) 중 화면 이탈 시간(초)', task2_n_leave:'과업 2(T3·T4) 중 화면 이탈 횟수', task2_leave_sec:'과업 2(T3·T4) 중 화면 이탈 시간(초)'};
 function colLabels(cols){
@@ -2800,7 +2859,7 @@ function codebookCSV(){
   note('*_rt', '응답 시간', '해당 화면이 뜬 뒤 그 문항을 마지막으로 누를 때까지(ms)');
   note('task1_* / task2_*', '과업별 반복 문항', '같은 문항을 과업마다 물을 때 앞에 과업 번호를 붙여요(예: task1_Q11). task1 = 단계 T1·T2, task2 = 단계 T3·T4');
   note('D_* / A_*', '유형별 복사', 'task1_/task2_ 열을 결정(D_)·행동(A_) 기준으로 다시 붙인 것');
-  note('att_ATT0_ok / att_Q30_ok', '주의 점검', "ATT0(자극 전, W10 3번 · 정답 5) = 제외 기준: 0이면 본 분석에서 뺌. Q30(두 과업 끝, W10 24번 · 정답 2) = 민감도 분석용. att_all_ok = 둘 다 맞음");
+  note('att_ATT0_ok / att_Q30_ok', '주의 점검', "ATT0(자극 전, W10 3번 · 정답 5) = 제외 기준: 0이면 본 분석에서 뺌(V22_FB_15부터는 그 자리에서 참여 종료 → 응답 행에는 1만 남음). Q30(두 과업 끝, W10 24번 · 정답 2) = 민감도 분석용. att_all_ok = 둘 다 맞음");
   note('status / analysis_include', '세션 상태', "complete=제출 완료, restarted=[처음으로]로 그만둔 세션(분석 제외), incomplete=진행 중. analysis_include=1만 분석");
   note('task*_n_default_view / default_view_sec', '기본 추천 보기', '결과 화면에서 [기본 추천으로 보기]를 누른 횟수와 그 화면을 본 시간(초)');
   note('stage_sec_*', '단계별 머문 시간', 'intro·setup·T1~T4·done·survey 단계에 머문 시간(초)');
@@ -2815,7 +2874,7 @@ function download(name, text, type){
 /* ---- Firebase 실시간 DB (연구자 화면이 읽는 곳) ----
    participants/{pid} 세션 전체(번호 없음) · live/{pid} 진행 상태 · consents/{pid} 동의 · responses/{pid} 시트와 같은 넓은 행
    logs/{pid} 로그 행 · lottery/{id} 추첨 번호(연구자 화면은 못 읽음) · meta/cellCounts 칸별 배정 · meta/seq 참여 번호 · meta/phones 번호 지문(번호 자체는 없음)
-   참여 조건 미달(screened_out: 나이 age · 구매 0회 shop)은 participants/live 에 status·screenReason 으로만 남고 responses 는 안 올림 */
+   참여 조건 미달(screened_out: 나이 age · 구매 0회 shop · 3번 주의 점검 att)은 participants/live 에 status·screenReason 으로만 남고 responses 는 안 올림 */
 let fbdb = null;
 function fbReady(){
   if (fbdb) return true;
@@ -2861,6 +2920,28 @@ async function fbAssignCell(){   // 16칸 중 가장 적게 찬 칸(같으면 �
   const v = res.snapshot.val();
   return v && v.lastCell >= 1 && v.lastCell <= 16 ? v.lastCell : null;
 }
+async function fbAssignPilot(balanceRetry){   // V22_FB_22: meta/pilotAssign — arms {pre_on, pre_off, post_on, post_off} 중 적은 묶음(같으면 무작위) → 그 시점의 8칸 중 적게 쓰인 칸(같으면 무작위) → 둘 다 1 올림
+  let aborted = false;
+  try{
+    const tx = fbdb.ref('meta/pilotAssign').transaction(cur => {
+      if (aborted) return;
+      const c = (cur && typeof cur === 'object') ? JSON.parse(JSON.stringify(cur)) : {}; c.arms = c.arms || {}; c.cells = c.cells || {};
+      const rnd = a => a[Math.floor(Math.random()*a.length)];
+      let arm;
+      if (balanceRetry){ const arms = ['pre_on','pre_off','post_on','post_off']; const min = Math.min.apply(null, arms.map(a => c.arms[a] || 0)); arm = rnd(arms.filter(a => (c.arms[a] || 0) === min)); }
+      else { const x2 = ['pre','post'].map(k => [k, (c.arms[k + '_on'] || 0) + (c.arms[k + '_off'] || 0)]); const min = Math.min(x2[0][1], x2[1][1]); arm = rnd(x2.filter(p => p[1] === min).map(p => p[0])) + (CONFIG.RETRY_ON ? '_on' : '_off'); }
+      const pre = arm.indexOf('pre_') === 0; const cells = []; for (let k = 1; k <= 16; k++){ if ((cellToCond(k).X2 === '사전') === pre) cells.push(k); }
+      const cmin = Math.min.apply(null, cells.map(k => c.cells['c'+k] || 0)); const cell = rnd(cells.filter(k => (c.cells['c'+k] || 0) === cmin));
+      c.arms[arm] = (c.arms[arm] || 0) + 1; c.cells['c'+cell] = (c.cells['c'+cell] || 0) + 1; c.total = (c.total || 0) + 1; c.last = {arm, cell, at:new Date().toISOString()};
+      return c;
+    });
+    const res = await fbWait(tx, 6000);
+    if (!res){ aborted = true; return null; }
+    if (!res.committed) return null;
+    const v = res.snapshot.val(); const last = v && v.last; if (!last || !(last.cell >= 1 && last.cell <= 16)) return null;
+    return {cell:last.cell, arm:last.arm, on: /_on$/.test(last.arm) ? 1 : 0};
+  }catch(e){ return null; }
+}
 async function fbAssignRetry(k){   // V22_FB_7: meta/retryCounts/{pre|post} 의 on · off 중 적은 쪽(같으면 무작위)을 고르고 1 올림 — fbAssignCell과 같은 방식
   let aborted = false;
   try{
@@ -2903,7 +2984,11 @@ async function fbAssign(fixedCell){   // Apps Script와 같은 역할: {dup} | {
       const res = await fbWait(fbdb.ref('meta/seq/' + CONFIG.PID_PREFIX + start).transaction(c => (c || 0) + 1), 6000);
       if (res && res.committed) out.pid = CONFIG.PID_PREFIX + pad3(res.snapshot.val() + start - 1);
     }
-    if (!fixedCell){ let c = await fbAssignCell(); if (!c) c = await fbAssignCell(); if (c) out.cell = c; else out.cellFail = true; }   // 칸 배정이 한 번 막히면 한 번 더
+    if (!fixedCell && PILOT && CONFIG.PILOT_BALANCE && SRC !== 'rehearsal'){   // V22_FB_22: 파일럿은 시점 × 반복 균형 배정(본 설문 칸 수와 따로)
+      const balanceRetry = !QS.has('retry');   // 링크에 &retry=0/1/auto 가 있으면 그 값을 쓰고 시점만 균형
+      let b = await fbAssignPilot(balanceRetry); if (!b) b = await fbAssignPilot(balanceRetry);
+      if (b){ out.cell = b.cell; out.pilotArm = b.arm; if (balanceRetry) out.retryOn = b.on; } else out.cellFail = true;
+    } else if (!fixedCell){ let c = await fbAssignCell(); if (!c) c = await fbAssignCell(); if (c) out.cell = c; else out.cellFail = true; }   // 칸 배정이 한 번 막히면 한 번 더
     if (S.phoneHash) fbdb.ref('meta/phones/' + S.phoneHash).update({pid: out.pid || S.pid, at: new Date().toISOString()});
     return out;
   }catch(e){ return null; }
