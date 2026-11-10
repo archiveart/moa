@@ -6,6 +6,10 @@
 <title>쇼핑앱 AI 추천 경험 연구</title>
 <!--
   2조 SBCX 실험물 v17 (팀 V13_FB_1(v16.1 + Firebase) 바탕 + 피드백 반영, 2026-11-04)
+  V22_FB_31 (11/10, 허준영 · 팀 요청): 미니테스트 링크 하나(?pilot=1&src=mini)를 8명 설계로 — 4칸(목적형 · 탐색형 × 사전 · 사후) × 과업 순서(DA · AD) 여덟 묶음에 1명씩
+       · 적은 묶음부터(같으면 무작위) → 묶음 안 두 칸(세트 순서 가나 · 나가) 중 적게 쓰인 칸 · 같으면 라틴 칸(1 · 4 · 6 · 7 · 9 · 12 · 14 · 15 — 4칸마다 DA · AD의 세트 순서가 엇갈리고 전체 가나 4 · 나가 4)
+       · 처음 8명 = 위 8칸에 1명씩(4칸 × 2명 · 칸마다 DA 1 · AD 1) · 9명째부터 나머지 8칸 · 배정이 막히면 16칸 중 무작위('random(mini-fail)') · &cell=N을 붙이면 그 칸이 우선
+       · 참가자 화면 · 문항 · 저장 열은 V22_FB_30(= 아영 FB_29 + 허준영 층)과 같음 · 본 설문 · 파일럿 · 리허설 배정도 그대로
   V22_FB_30 (11/10, 허준영): 아영 님 FB_29(v22.30 · 최종) 그대로 + 허준영 층 세 가지 — 참가자 화면 · 문항 · 저장 열은 아영 FB_29와 같음
        · ① 파일럿 링크(?pilot=1 · 칸 고정 없음 · 리허설 · 미니 아님)는 시점(사전/사후)을 번갈아 채우고 그 시점의 8칸 중 적게 쓰인 칸으로(CONFIG.PILOT_BALANCE · meta/pilotAssign · 본 설문 칸 수는 안 올림 · RETRY_ALWAYS라 시점만 균형)
        · ② 연결 리허설 링크(?pilot=1&src=rehearsal&cell=N)는 '1회 참여' 막기(ONE_TIME_ONLY)에서 제외 — 같은 브라우저에서 32회 돌려야 해서(ONE_TIME 상수)
@@ -1076,7 +1080,7 @@ body.tutm #top{display:none}
    설정
    ========================================================= */
 const CONFIG = {
-  STUDY_VERSION: 'SBCX-2조-v22.31 (2026-11-10)',   // v20: 11/5 교수님 구두 피드백 + W10 문항(A11 W10) 반영
+  STUDY_VERSION: 'SBCX-2조-v22.32 (2026-11-10)',   // v20: 11/5 교수님 구두 피드백 + W10 문항(A11 W10) 반영
   CLUX_STAGE_NAMES: false,      // true면 위쪽 단계 이름을 CLUX 원래 이름(리서치 해석·문제 정의·아이데이션·문서화)으로 표시
   CONSENT_VERSION: 'consent-v4',   // v4(V22_FB_22): 번호 수집 줄 · 보상 안내 없음(PHONE_ON true로 되돌리면 'consent-v3'로) · v3: 번호 수집 [선택](보상 추첨용), 중복 참여 확인 문구 뺌
   PHONE_ON: false,              // V22_FB_22(11/8 아영 님): 휴대전화 번호 · 보상 추첨 안내 없음. true = 예전처럼 [선택] 동의자에게 번호 받기 + 추첨 안내
@@ -1085,7 +1089,7 @@ const CONFIG = {
     apiKey: 'AIzaSyBn2U9ttAK7YB1s_uNAidPHn8B6M6CigZA', projectId: 'moa-t2-study', appId: '1:820807917036:web:c77c2761d3624e1dc1b4c9',
     databaseURL: 'https://moa-t2-study-default-rtdb.asia-southeast1.firebasedatabase.app' },
   FIREBASE_ASSIGN: true,        // true면 Firebase에서 16칸을 가장 적게 찬 칸부터 고르게 배정 · 참여 번호 순번 (주소 ?cell= 이 있으면 칸은 그게 우선)
-  MINI_ARMS: true,              // V22_FB_30(11/10 허준영): ?pilot=1&src=mini(칸 고정 없음)는 사후 네 묶음(목적형 · 탐색형 × 빼기 먼저 · 고르기 먼저)을 번갈아 채움(meta/pilotAssign/mini) · false면 다른 파일럿 링크처럼
+  MINI_ARMS: true,              // V22_FB_31(11/10 팀 요청): ?pilot=1&src=mini(칸 고정 없음)는 4칸(목적형 · 탐색형 × 사전 · 사후) × 과업 순서(DA · AD) 여덟 묶음을 번갈아 채움(meta/pilotAssign/mini · 8명 = 4칸 × 2명) · FB_30은 사후 네 묶음 · false면 다른 파일럿 링크처럼
   PILOT_BALANCE: true,          // V22_FB_30(11/8 허준영): 파일럿 링크는 시점 × 반복 네 묶음을 번갈아 채우고 그 시점의 8칸 중 적게 쓰인 칸으로(meta/pilotAssign · 본 설문 칸 수는 안 올림). false면 예전처럼 16칸 배정 + ?retry=auto 로만 균형
   PHONE_DUP_BLOCK: false,       // true면 같은 번호(지문)로 이미 끝낸 기록이 Firebase에 있을 때 막음. V13 결정(번호는 추첨에만)대로 기본은 false — 연구자 화면에 '번호 중복' 표시만
   SURVEY_END_TEXT: '11월 22일', // 디브리핑: 이 날짜까지 연구 내용 비밀 (교수님 7쪽 · 장표 50: '11월 18일' → 22일)
@@ -3014,16 +3018,18 @@ async function fbAssignCell(){   // 16칸 중 가장 적게 찬 칸(같으면 �
   const v = res.snapshot.val();
   return v && v.lastCell >= 1 && v.lastCell <= 16 ? v.lastCell : null;
 }
-async function fbAssignMini(){   // V22_FB_30: meta/pilotAssign/mini — 사후 칸만 · 묶음 = 목적/탐색 × 과업 순서 · 적은 묶음(같으면 무작위) → 묶음 안 두 칸 중 적게 쓰인 칸(같으면 무작위) → 둘 다 1 올림
+async function fbAssignMini(){   // V22_FB_31: meta/pilotAssign/mini — 4칸(목적형 · 탐색형 × 사전 · 사후) × 과업 순서(DA · AD) 여덟 묶음 · 적은 묶음(같으면 무작위) → 묶음 안 두 칸 중 적게 쓰인 칸(같으면 라틴 칸) → 둘 다 1 올림
   let aborted = false;
   try{
     const tx = fbdb.ref('meta/pilotAssign/mini').transaction(cur => {
       if (aborted) return;
       const c = (cur && typeof cur === 'object') ? JSON.parse(JSON.stringify(cur)) : {}; c.arms = c.arms || {}; c.cells = c.cells || {};
       const rnd = a => a[Math.floor(Math.random()*a.length)];
-      const arms = {}; for (let k = 1; k <= 16; k++){ const cd = cellToCond(k); if (cd.X2 !== '사후') continue; const key = (cd.W === '목적형' ? 'goal' : 'explore') + '_' + cd.order; (arms[key] = arms[key] || []).push(k); }
+      const LATIN = [1, 4, 6, 7, 9, 12, 14, 15];   // 4칸마다 DA · AD가 서로 다른 세트 순서 · 전체 가나 4 · 나가 4
+      const arms = {}; for (let k = 1; k <= 16; k++){ const cd = cellToCond(k); const key = (cd.W === '목적형' ? 'goal' : 'explore') + '_' + (cd.X2 === '사전' ? 'pre' : 'post') + '_' + cd.order; (arms[key] = arms[key] || []).push(k); }
       const keys = Object.keys(arms); const min = Math.min.apply(null, keys.map(a => c.arms[a] || 0)); const arm = rnd(keys.filter(a => (c.arms[a] || 0) === min));
-      const cells = arms[arm]; const cmin = Math.min.apply(null, cells.map(k => c.cells['c'+k] || 0)); const cell = rnd(cells.filter(k => (c.cells['c'+k] || 0) === cmin));
+      const cells = arms[arm]; const cmin = Math.min.apply(null, cells.map(k => c.cells['c'+k] || 0)); const low = cells.filter(k => (c.cells['c'+k] || 0) === cmin); const lat = low.filter(k => LATIN.indexOf(k) >= 0);
+      const cell = lat.length ? lat[0] : rnd(low);
       c.arms[arm] = (c.arms[arm] || 0) + 1; c.cells['c'+cell] = (c.cells['c'+cell] || 0) + 1; c.total = (c.total || 0) + 1; c.last = {arm, cell, at:new Date().toISOString()};
       return c;
     });
@@ -3098,9 +3104,9 @@ async function fbAssign(fixedCell){   // Apps Script와 같은 역할: {dup} | {
       const res = await fbWait(fbdb.ref('meta/seq/' + CONFIG.PID_PREFIX + start).transaction(c => (c || 0) + 1), 6000);
       if (res && res.committed) out.pid = CONFIG.PID_PREFIX + pad3(res.snapshot.val() + start - 1);
     }
-    if (!fixedCell && PILOT && CONFIG.MINI_ARMS && SRC === 'mini'){   // V22_FB_30: 미니 재검사 링크 하나 → 사후 네 묶음 균형(파일럿 · 본 설문 칸 수와 따로)
+    if (!fixedCell && PILOT && CONFIG.MINI_ARMS && SRC === 'mini'){   // V22_FB_31: 미니테스트 링크 하나 → 4칸 × 과업 순서 여덟 묶음 균형(파일럿 · 본 설문 칸 수와 따로)
       let m = await fbAssignMini(); if (!m) m = await fbAssignMini();
-      if (m){ out.cell = m.cell; out.miniArm = m.arm; } else { const pool = []; for (let k = 1; k <= 16; k++){ if (cellToCond(k).X2 === '사후') pool.push(k); } out.cell = pool[Math.floor(Math.random()*pool.length)]; out.miniArm = 'fail'; out.miniFail = true; }   // 배정이 막혀도 사후 칸으로
+      if (m){ out.cell = m.cell; out.miniArm = m.arm; } else { out.cell = 1 + Math.floor(Math.random()*16); out.miniArm = 'fail'; out.miniFail = true; }   // 배정이 막히면 16칸 중 무작위
     } else if (!fixedCell && PILOT && CONFIG.PILOT_BALANCE && SRC !== 'rehearsal'){   // V22_FB_30: 파일럿은 시점 × 반복 균형 배정(본 설문 칸 수와 따로)
       const balanceRetry = !QS.has('retry') && !CONFIG.RETRY_ALWAYS;   // 링크에 &retry= 가 있거나 RETRY_ALWAYS(아영 FB_23 · 늘 [다시 해 보기])면 시점(사전/사후)만 균형
       let b = await fbAssignPilot(balanceRetry); if (!b) b = await fbAssignPilot(balanceRetry);
