@@ -1113,7 +1113,7 @@ body.tutm #top{display:none}
    설정
    ========================================================= */
 const CONFIG = {
-  STUDY_VERSION: 'SBCX-2조-v22.33 (2026-11-11)',   // v20: 11/5 교수님 구두 피드백 + W10 문항(A11 W10) 반영
+  STUDY_VERSION: 'SBCX-2조-v22.34 (2026-11-11)',   // V22_FB_37(11/11 밤): v22.33 + 파일럿 링크 마감(PILOT_CLOSED) · 본 설문 · 리허설 흐름은 그대로   // v20: 11/5 교수님 구두 피드백 + W10 문항(A11 W10) 반영
   CLUX_STAGE_NAMES: false,      // true면 위쪽 단계 이름을 CLUX 원래 이름(리서치 해석·문제 정의·아이데이션·문서화)으로 표시
   CONSENT_VERSION: 'consent-v4',   // v4(V22_FB_22): 번호 수집 줄 · 보상 안내 없음(PHONE_ON true로 되돌리면 'consent-v3'로) · v3: 번호 수집 [선택](보상 추첨용), 중복 참여 확인 문구 뺌
   PHONE_ON: false,              // V22_FB_22(11/8 아영 님): 휴대전화 번호 · 보상 추첨 안내 없음. true = 예전처럼 [선택] 동의자에게 번호 받기 + 추첨 안내
@@ -1123,6 +1123,7 @@ const CONFIG = {
     databaseURL: 'https://moa-t2-study-default-rtdb.asia-southeast1.firebasedatabase.app' },
   FIREBASE_ASSIGN: true,        // true면 Firebase에서 16칸을 가장 적게 찬 칸부터 고르게 배정 · 참여 번호 순번 (주소 ?cell= 이 있으면 칸은 그게 우선)
   MINI_ARMS: true,              // V22_FB_31(11/10 팀 요청): ?pilot=1&src=mini(칸 고정 없음)는 4칸(목적형 · 탐색형 × 사전 · 사후) × 과업 순서(DA · AD) 여덟 묶음을 번갈아 채움(meta/pilotAssign/mini · 8명 = 4칸 × 2명) · FB_30은 사후 네 묶음 · false면 다른 파일럿 링크처럼
+  PILOT_CLOSED: true,           // V22_FB_37(11/11 밤 · 팀 요청 · 실제 진행 16명으로 마무리): ?pilot=1 링크(① 인지 ?src=think · ② 사전 ?src=pre · 미니 ?src=mini · ③ 실제 진행 ?src=run · src 없는 파일럿)는 '모집이 끝났어요'에서 멈춤 — 리허설(src=rehearsal) · 미리보기(?dev=1) · 본 설문 링크는 그대로 · 이 브라우저에서 하던 같은 버전 파일럿은 이어서. false면 다시 열림
   PILOT_BALANCE: true,          // V22_FB_30(11/8 허준영): 파일럿 링크는 시점 × 반복 네 묶음을 번갈아 채우고 그 시점의 8칸 중 적게 쓰인 칸으로(meta/pilotAssign · 본 설문 칸 수는 안 올림). false면 예전처럼 16칸 배정 + ?retry=auto 로만 균형
   PHONE_DUP_BLOCK: false,       // true면 같은 번호(지문)로 이미 끝낸 기록이 Firebase에 있을 때 막음. V13 결정(번호는 추첨에만)대로 기본은 false — 연구자 화면에 '번호 중복' 표시만
   SURVEY_END_TEXT: '11월 22일', // 디브리핑: 이 날짜까지 연구 내용 비밀 (교수님 7쪽 · 장표 50: '11월 18일' → 22일)
@@ -3389,6 +3390,13 @@ function init(){
   if (done && !DEV && ONE_TIME){
     blockScreen(`<h2 class="pt">이미 참여를 마치셨어요</h2><p class="lead">이 기기에서는 한 번만 참여할 수 있어요. 참여해 주셔서 감사합니다.</p>`);
     return;
+  }
+  if (CONFIG.PILOT_CLOSED && PILOT && !DEV && SRC !== 'rehearsal'){   // V22_FB_37: 파일럿 링크 마감 — 새로 시작하는 사람은 여기서 멈춤(배정 · 번호 · 기록 없음)
+    const sv = load(KEY_SESSION);
+    if (!(sv && !sv.done && String(sv.study).indexOf(CONFIG.STUDY_VERSION) === 0 && String(sv.pid || '').charAt(0) === CONFIG.PID_PREFIX)){
+      blockScreen(`<h2 class="pt">모집이 끝났어요</h2><p class="lead">이 링크로 하는 참여는 마감됐어요. 관심 가져 주셔서 감사합니다.</p>`);
+      return;
+    }
   }
   const saved = load(KEY_SESSION);
   if (saved && !saved.done && String(saved.study).indexOf(CONFIG.STUDY_VERSION) === 0 && (saved.dev || String(saved.pid || '').charAt(0) === CONFIG.PID_PREFIX) && !((DEV || !ONE_TIME) && QS.get('fresh') === '1')){
