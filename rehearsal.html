@@ -6,7 +6,23 @@
 <title>쇼핑앱 AI 추천 경험 연구</title>
 <!--
   2조 SBCX 실험물 v17 (팀 V13_FB_1(v16.1 + Firebase) 바탕 + 피드백 반영, 2026-11-04)
-  V22_FB_53 배포본 (11/14 새벽, 허준영 · Claude): 아영 FB_53(v22.53 · FB_49–53: 사후 추천 화면 · 22번 문구 · 검색 뒤 순서 · 자동 스크롤 · 연습 삭제) 그대로 + 배포본 층(FB_48 배포본과 같음) — STUDY_VERSION은 v22.53 그대로 · 참가자 화면 · 문항 · 저장 열은 FB_53과 같음
+  V22_FB_56 (11/16, 아영 · Claude): 고르는 칸 ✦ 아이콘 — 이외에는 FB_55 그대로
+       · D125 상자 맨 위 ✦ 아이콘 검정 → 보라(#7C3AED) · 아이콘 뒤에 연보라 원(24px) · 'AI에게 알려 주세요.' 글자 · 네 칸 같음
+  V22_FB_55 (11/16, 아영 · Claude): 사전 × 결정 니트 종류를 사진 버튼으로 되돌림 — 이외에는 FB_54 그대로
+       · 사전 × 결정 고르는 칸: FB_54 글자 칩 → FB_53 이전처럼 둥근 사진 버튼(이름 · 오른쪽 위 X · 누르면 '제외') · 'AI가 후보로 본 니트 종류 · 최근에 본 상품 기준' 한 줄 다시 넣음
+         · D125 상자 하나(✦ 'AI에게 알려 주세요.' · 두 줄 안내 · [초기화] 자리) · '자주 본 브랜드' 칩 · 사후 칸 · 행동 칸은 FB_54 그대로
+  V22_FB_54 (11/16, 아영 · Claude): D123 23번 양 끝 풀이 · D124 'AI 추천 결과 6개' 보라 띠 · D125 고르는 칸 상자 하나로 · 22번 문구 — 이외에는 FB_53 그대로
+       · D124 'AI 추천 결과 6개' 딱지 → 보라 띠(글자 그대로 · 17px · 폭 가득 · 보라 바탕 흰 글자) · 네 칸 같은 모양(사전 = 결과 화면 · 사후 = 첫 화면 + 바뀐 결과 화면) · 자리는 그대로(상품 6개 바로 위) · 파랑(내가 고른 것)과 헷갈리지 않게 보라
+       · 22번(Q29) '이번 쇼핑은 어떤 순서였나요?' · ① '내가 빼거나 고른 다음에 AI 추천 결과가 나왔다'(pre) 흐름 '[상품 추천받기] → 빼거나 고르기 → AI 추천 결과' · ② 'AI 추천 결과가 나온 다음에 내가 빼거나 골랐다'(post) 흐름 '[상품 추천받기] → AI 추천 결과 → 빼거나 고르기 → 바뀐 추천 결과'
+         · 보기 강조([[ ]] '내가 먼저' · 'AI가 먼저')는 새 문구에 없어 뺌 · 흐름 줄 '빼거나 고르기' 굵게 · 코드 pre / post · 열 Q29 · 정답 그대로
+       · D123 23번(Q8) 양 끝 말 아래 작은 괄호 풀이: 왼쪽 '(살 것을 정해 둔 게 없었다)' · 오른쪽 '(살 것이 정해져 있었다)' · 줄기 · 1–7 · 양 끝 말 그대로 · 카드 이름(사러 왔어요 / 구경하러 왔어요) 안 넣음
+       · D125 고르는 칸(네 칸 공통): 연파랑 안내 띠 + 고르는 상자 → 상자 하나(안쪽 상자 없음) · 맨 위 ✦ 'AI에게 알려 주세요.'(검정 굵게 · [초기화]는 이 줄 오른쪽) · 그 아래 두 줄 파랑 굵게
+         사전 '추천 받기 전에' / 사후 '추천을 본 뒤' + 결정 '원하지 않는 것을 눌러 빼 주세요' / 행동 '원하는 조건을 골라 주세요'
+         · 결정: 사전 둥근 사진 6개 → 글자 칩(× 표시) · 이름표 '니트 종류' · '자주 본 브랜드'(사후는 FB_49 칩 그대로) · 사전 '최근에 본 상품 기준' 한 줄은 뺌 · 행동: 핏 · 소재 · 기장 칩 그대로
+         · 칩 항목 · 개수 · 기록(ex-style · ex-brand · attr) · 버튼 · 로딩 · 위 AI 카드 그대로 · 20초 손가락은 새 상자 맨 위 ✦를 가리킴
+  V22_FB_56 배포본 (11/16, 허준영 · Claude): 아영 FB_56(v22.56 · FB_54–56: 22번 문구 · 23번 양 끝 풀이 · 'AI 추천 결과 6개' 보라 띠 · 고르는 칸 상자 하나 · 사전 × 결정 사진 버튼 · ✦ 보라) 그대로 + 배포본 층(FB_53 배포본과 같음 · 아래 ①–⑦) — STUDY_VERSION은 v22.56 그대로 · 참가자 화면 · 문항 · 저장 열은 FB_56과 같음
+       · ⑧ 같은 파일을 두 주소에 올림(11/16 준영): GitHub(archiveart.github.io/moa) · Netlify(회사망에서 GitHub가 막히는 분용) — 파일 안에 주소를 적은 곳 없음 · 저장 · 참여 번호 순번 · 칸 배정은 둘 다 같은 Firebase(moa-t2-study)
+         · '이미 참여를 마치셨어요'(이 브라우저 기록 · 쿠키)는 주소마다 따로 → 같은 사람이 두 주소로 두 번 들어오면 브라우저에서는 못 막음(다른 브라우저로 들어오는 것과 같음) · 본 설문 링크는 둘 다 ?src=agency
        · ① 파일럿 링크 마감(PILOT_CLOSED) — ?pilot=1(인지 · 사전 · 미니 · 실제 진행)은 '모집이 끝났어요' · 리허설(src=rehearsal) · 미리보기(?dev=1) · 본 설문 링크는 그대로
        · ② 연결 리허설 링크(?pilot=1&src=rehearsal)는 '1회 참여' 막기에서 제외(ONE_TIME) — 같은 브라우저에서 32회 자동 리허설
        · ③ 파일럿 · 미니 배정 코드(MINI_ARMS · PILOT_BALANCE) — ①로 링크가 닫혀 있어 실제로는 안 쓰임 · ④ D66 남은 한 자리(미리보기 건너뛰기 경로의 t_submit도 1회차만)
@@ -1439,6 +1455,29 @@ body.tutm #top{display:none}
 @keyframes sres52{0%,100%{background-color:#E2E4E8}50%{background-color:#ECEEF1}}   /* 반짝임은 색으로(투명도는 차례로 등장에 씀) */
 @keyframes sq52{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .pc .pm.res{font-size:12.5px;padding:3px 5px;letter-spacing:-0.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---------- V22_FB_54 ---------- */
+.rcount,.topcard.in49 .rcount{display:block;width:auto;font-size:17px;font-weight:700;color:#fff;background:#7C3AED;border-radius:10px;padding:10px 14px;margin:14px 0 12px;letter-spacing:-0.01em}   /* D124: 보라 띠 · 네 칸 같은 모양 */
+.rcount b{color:#fff;font-weight:800}
+.box.ask125{background:#F4F7FF;border:1px solid #DCE5FF;border-radius:14px;padding:14px 16px 16px;margin-top:16px}   /* D125 */
+.ask125 .ah{display:flex;align-items:center;gap:6px;font-size:15px;font-weight:800;color:#111827}
+.ask125 .ah svg{width:15px;height:15px;flex:none;color:#111827}
+.ask125 .ah .rst{margin-left:auto;flex:none;white-space:nowrap;font-size:12.5px;font-weight:600;color:var(--t2);background:#fff;border:1px solid #E2E8F0;border-radius:999px;padding:5px 10px}
+.ask125 .ah .rst:disabled{color:#C4CAD3;border-color:#EEF1F5;cursor:default}
+.ask125 .aq{display:flex;flex-direction:column;margin-top:8px;font-size:18px;font-weight:800;color:#1D4ED8;line-height:1.38;word-break:keep-all;letter-spacing:-0.01em}
+.ask125 .bt2{font-size:14px;font-weight:700;color:var(--t2);margin-top:14px}
+.ask125 .brands{margin-top:9px}
+.ask125 .sep{margin:14px 0 0}
+.ask125.cond .row:first-of-type{margin-top:14px}
+.anch .asub{display:block;font-size:11px;color:var(--ink-3);opacity:.9;margin-top:1px;font-weight:400}   /* D123 */
+.anch span:last-child{text-align:right}
+
+/* ---------- V22_FB_55 ---------- */
+.ask125 .bsub.pre55{margin:12px 0 0}
+
+/* ---------- V22_FB_56 ---------- */
+.ask125 .ah .aic{width:24px;height:24px;border-radius:50%;background:#EFE8FF;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.ask125 .ah .aic svg{width:13px;height:13px;color:#7C3AED}
 </style>
 </head>
 <body>
@@ -1463,7 +1502,7 @@ body.tutm #top{display:none}
    설정
    ========================================================= */
 const CONFIG = {
-  STUDY_VERSION: 'SBCX-2조-v22.53 (2026-11-14)',   // V22_FB_53   // V22_FB_52   // V22_FB_51   // V22_FB_50   // V22_FB_49   // V22_FB_48   // V22_FB_47   // V22_FB_46   // V22_FB_45   // V22_FB_44
+  STUDY_VERSION: 'SBCX-2조-v22.56 (2026-11-16)',   // V22_FB_56   // V22_FB_55   // V22_FB_54   // V22_FB_53   // V22_FB_52   // V22_FB_51   // V22_FB_50   // V22_FB_49   // V22_FB_48   // V22_FB_47   // V22_FB_46   // V22_FB_45   // V22_FB_44
   SCN_LAYOUT48: true,           // V22_FB_48: 상황 카드 위쪽 모양(핵심 한 줄 띠 · 태그 상자). false = FB_47 모양
   AUTO_SCROLL_SEC: 20,          // V22_FB_50: 스크롤이 생기는 폰 화면에서 이 초 동안 안 내리면 자동으로 끝까지 내림. 0 = 끔
   POST_LAYOUT49: true,          // V22_FB_49: 사후 추천 화면 — 상품 6개를 AI 카드 안에 · 맞추기 상자는 아래 · 첫 로딩 딤. false = FB_48 모양
@@ -1719,7 +1758,7 @@ const BLOCKS = {
     {code:'XSKEP3', text:'광고는 상품의 품질과 성능을 알 수 있는 믿을 만한 정보다'}]},
   // v20: W 조작점검 3 → 1문항, 상황 카드 직후 → 과업 1 끝(조작점검 뒤)으로 이동 · 과거형. Q9 · Q10 삭제
   WMC:{ask:'첫 번째 쇼핑을 시작할 때 읽은 상황을 떠올리며 답해 주세요.', items:[
-    {code:'Q8', text:'쇼핑을 시작하기 전 받은 상황 카드에서, 내 쇼핑 목표는 얼마나 구체적이었나요?', l:'전혀 구체적이지 않다', r:'매우 구체적이다'}]},
+    {code:'Q8', text:'쇼핑을 시작하기 전 받은 상황 카드에서, 내 쇼핑 목표는 얼마나 구체적이었나요?', l:'전혀 구체적이지 않다', r:'매우 구체적이다', ls:'(살 것을 정해 둔 게 없었다)', rs:'(살 것이 정해져 있었다)'}   /* V22_FB_54 (D123): 양 끝 말 아래 풀이 */]},
   M1:{ask:'결과보다 추천을 바꾸던 과정을 떠올리며, 각 문장에 얼마나 동의하는지 골라 주세요.', items:[   // V22_FB_52: '맞추던' → '바꾸던'(4–6번 화면 · 7–9번과 같게)
     {code:'Q11', text:'원하는 만큼 추천을 바꿀 수 있었다'},
     {code:'Q12', text:'이번 추천에서 무엇을 추천받을지는 나에게 달려 있다고 느꼈다'},   // 5번: 그대로(11/7 점검 · Ajzen 'up to me' · '내가 정할 수 있었다'로 바꾸면 4번과 겹침)
@@ -1760,7 +1799,7 @@ const ATT0 = {code:'ATT0', text:"이 문항에는 '5'를 골라 주세요", att:
 /* 과업 끝 조작점검. 유형(Q28) · 시점(Q29) 모두 과업마다(v15부터 시점도 과업 1 끝에서 묻기) */
 const MC_ITEMS = [
   {code:'Q28', v:'X1 유형 조작점검', q:'이번 쇼핑의 추천 맞추기 화면에서 내가 한 일은', fixedOpts:true, opts:[['D','원하지 않는 것을 제외했다'],['A','원하는 조건을 정했다']]}   /* V22_FB_47 추가 (D99): '추천에서 · 추천에' 뺌 — 사전은 추천을 보기 전에 했으므로 시점 단서가 섞이지 않게 */,   // V22_FB_45: 보기 문구 — '뺐다 / 골랐다'가 서로 바꿔 읽힘(사전×결정 '골랐다' · 사후×행동 '뺐다' 오답) → 빼기·고르기 축을 벗어난 말로 · 코드 D / A · 줄기 · 화면 상자 제목은 그대로   // V22_FB_7 수정 목록 1 · D26: 보기 = 두 유형 상자 제목의 동사('원하지 않는 것을 눌러 빼 주세요' · '원하는 조건을 골라 주세요', FB_5부터 결정 두 칸 같음)
-  {code:'Q29', v:'X2 시점 조작점검', q:'이번 쇼핑은 어떤 순서였나요?', fixedOpts:true, opts:[['pre','[[내가 먼저]] 빼거나 고른 뒤, AI가 상품을 골랐다','홈 → 검색 → [상품 추천받기] → 빼거나 고르기 → AI가 고른 상품'],['post','[[AI가 먼저]] 상품을 고른 뒤, 내가 빼거나 골랐다','홈 → 검색 → [상품 추천받기] → AI가 고른 상품 → 빼거나 고르기 → 바뀐 상품']],   /* V22_FB_49: 순서형 줄기 · 보기([[ ]] = 파랑 굵게) · 흐름 줄 · 코드 그대로 */   /* V22_FB_46: 흐름 줄 다시(검색 흐름) */   /* V22_FB_45: 보기 문구 · 흐름 줄 뺌(홈 [추천받기]가 없어졌고 사후 '다시 나옴'과 헷갈림) — '보면서' = 빼거나 고르던 그 순간 상품이 화면에 있었는지 · 질문 줄기 · 코드 pre/post · 열 이름 그대로 */ once:!CONFIG.Q29_EACH_TASK},   // V22_FB_21: 원래 문항('이번 과업에서 나는' · 추천을 받기 전에 정했다 / 추천을 본 뒤에 고쳤다) 바탕 · '받기' → '상품을 보기'([추천받기] 버튼과 헷갈림). FB_7–20: '이번 쇼핑에서 빼거나 고를 때, 그 화면에' · 가격이 붙은 추천 상품은 아직 없었다 / 이미 나와 있었다   // once면 과업 2 끝에만, 열 이름 Q29
+  {code:'Q29', v:'X2 시점 조작점검', q:'이번 쇼핑은 어떤 순서였나요?', fixedOpts:true, opts:[['pre','내가 빼거나 고른 다음에 AI 추천 결과가 나왔다','[상품 추천받기] → 빼거나 고르기 → AI 추천 결과'],['post','AI 추천 결과가 나온 다음에 내가 빼거나 골랐다','[상품 추천받기] → AI 추천 결과 → 빼거나 고르기 → 바뀐 추천 결과']],   /* V22_FB_54: 보기 · 흐름 줄 새 문구(코드 · 정답 그대로) */   /* V22_FB_49: 순서형 줄기 · 보기([[ ]] = 파랑 굵게) · 흐름 줄 · 코드 그대로 */   /* V22_FB_46: 흐름 줄 다시(검색 흐름) */   /* V22_FB_45: 보기 문구 · 흐름 줄 뺌(홈 [추천받기]가 없어졌고 사후 '다시 나옴'과 헷갈림) — '보면서' = 빼거나 고르던 그 순간 상품이 화면에 있었는지 · 질문 줄기 · 코드 pre/post · 열 이름 그대로 */ once:!CONFIG.Q29_EACH_TASK},   // V22_FB_21: 원래 문항('이번 과업에서 나는' · 추천을 받기 전에 정했다 / 추천을 본 뒤에 고쳤다) 바탕 · '받기' → '상품을 보기'([추천받기] 버튼과 헷갈림). FB_7–20: '이번 쇼핑에서 빼거나 고를 때, 그 화면에' · 가격이 붙은 추천 상품은 아직 없었다 / 이미 나와 있었다   // once면 과업 2 끝에만, 열 이름 Q29
 ];
 /* 결정·행동 선호(보조): 두 과업 끝에 한 번, 보기 순서 무작위(A11-3 비고). 28·29번은 ①② 순서 고정 */
 const PREF_ITEM = {code:'Q32', v:'결정·행동 선호(보조)', q:'다음에 쇼핑할 때 쓴다면 어느 방식을 고르겠어요?', opts:[['D','원하지 않는 것을 빼기'],['A','원하는 조건을 고르기']], once:true};   // V22_FB_7: 21번 보기와 같은 동사
@@ -2246,6 +2285,15 @@ function attrTags(c, d){   // v20: 기본값이 없으니 고른 값만 태그�
   return [['fit', c.fit && '#'+c.fit], ['mat', c.mat && '#'+c.mat], ['len', c.len && '#'+lenTag(c.len)]].filter(x => x[1]).map(x => ({label:x[1], on:true}));
 }
 /* v20: 조건 버튼은 V18처럼 글자 버튼(11/6 팀 결정 · 아이콘 넣었다가 되돌림). 제목만 '원하는 조건을 골라 주세요' */
+/* V22_FB_54 (D125): 고르는 칸 — 상자 하나(✦ 'AI에게 알려 주세요.' + 두 줄 안내 + 칩) · 네 칸 같은 모양 */
+const ASK_L1 = {pre:'추천 받기 전에', post:'추천을 본 뒤'}, ASK_L2 = {D:'원하지 않는 것을 눌러 빼 주세요', A:'원하는 조건을 골라 주세요'};
+function askBox(x2, t, mode, inner){
+  return `<div class="box ask125${t.type === 'A' ? ' cond' : ''}"><div class="ah"><span class="aic">${ICON.spark}</span><span>AI에게 알려 주세요.</span>${resetBtn(t, mode)}</div>
+    <div class="aq"><span>${ASK_L1[x2]}</span><span>${ASK_L2[t.type]}</span></div>${inner}</div>`;
+}
+function condRows(cond){
+  return ATTRS.map(([k,lbl,vals]) => `<div class="row"><span class="rl">${lbl}</span>${vals.map(v => `<button class="pill ${cond[k]===v?'on':''}" data-act="attr" data-k="${k}" data-v="${v}" aria-pressed="${cond[k]===v}">${v}</button>`).join('')}</div>`).join('');
+}
 function condPanel(cond){
   return `<div class="box cond"><div class="bt">원하는 조건을 골라 주세요</div>
     ${ATTRS.map(([k,lbl,vals]) => `<div class="row"><span class="rl">${lbl}</span>${vals.map(v => `<button class="pill ${cond[k]===v?'on':''}" data-act="attr" data-k="${k}" data-v="${v}" aria-pressed="${cond[k]===v}">${v}</button>`).join('')}</div>`).join('')}
@@ -2274,15 +2322,12 @@ function recHTML(t, mode){
   let body = '';
   if (isPre){
     body += topCardPre();
-    body += `<div class="hint">${ICON.sliders}${hintText('pre', t.type)}${resetBtn(t, mode)}</div>`;
-    if (t.type === 'D'){
-      // 종류 카드: 사진 위에 이름 · 오른쪽 위 X. 누르면 '제외'(어둡게 + 보라 표시 · X 회색), 다시 누르면 되돌려요. 브랜드 칩은 누르면 회색
-      body += `<div class="box"><div class="bt">원하지 않는 것을 눌러 빼 주세요</div><div class="bs bsub">AI가 후보로 본 니트 종류 · 최근에 본 상품 기준</div>
-        <div class="styles">${set.styleCands.map(([lbl,img]) => { const off = exHas('style',lbl), name = STYLE_LABEL[lbl] || lbl; return `<button class="st ${off?'off':''}" data-act="ex-style" data-v="${lbl}" aria-pressed="${off}" aria-label="${name} ${off?'되돌리기':'빼기'}"><span class="clip"><img src="${IMG[img]}" alt=""><span class="lb">${name}</span><span class="ex">제외</span></span><span class="xb" aria-hidden="true">${ICON.xb}</span></button>`; }).join('')}</div>
-        <div class="sep"></div><div class="bt">자주 본 브랜드</div>
-        <div class="brands">${set.brandCands.map(b => { const off = exHas('brand',b); return `<button class="bchip ${off?'off':''}" data-act="ex-brand" data-v="${b}" aria-pressed="${off}">${b}${ICON.xs}</button>`; }).join('')}</div></div>`;
+    if (t.type === 'D'){   // V22_FB_54 (D125): 안내 띠 + 상자 → 상자 하나 · 사진 → 글자 칩
+      const tiles = set.styleCands.map(([lbl,img]) => { const off = exHas('style',lbl), name = STYLE_LABEL[lbl] || lbl; return `<button class="st ${off?'off':''}" data-act="ex-style" data-v="${lbl}" aria-pressed="${off}" aria-label="${name} ${off?'되돌리기':'빼기'}"><span class="clip"><img src="${IMG[img]}" alt=""><span class="lb">${name}</span><span class="ex">제외</span></span><span class="xb" aria-hidden="true">${ICON.xb}</span></button>`; }).join('');   // V22_FB_55: 사진 버튼으로 되돌림(FB_53 그대로)
+      const brands = set.brandCands.map(b => { const off = exHas('brand',b); return `<button class="bchip ${off?'off':''}" data-act="ex-brand" data-v="${b}" aria-pressed="${off}">${b}${ICON.xs}</button>`; }).join('');
+      body += askBox('pre', t, mode, `<div class="bs bsub pre55">AI가 후보로 본 니트 종류 · 최근에 본 상품 기준</div><div class="styles">${tiles}</div><div class="sep"></div><div class="bt2">자주 본 브랜드</div><div class="brands">${brands}</div>`);
     } else {
-      body += condPanel(cond);
+      body += askBox('pre', t, mode, condRows(cond));
     }
   } else {
     // 위 카드 태그: 처음엔 'AI 기본 설정', 바꾸면 고른 것을 그대로 보여 줘요(사후)
@@ -2294,16 +2339,14 @@ function recHTML(t, mode){
         ? items.map(p => { const sOn = exHas('style',p.styles[0]), bOn = exHas('brand',p.brand); return productCard(Object.assign({}, p, {meta:styleName(p.styles[0])}),{off:sOn||bOn}); }).join('')
         : items.map(p => productCard(p)).join('');
       body += topCardPost(chosen ? liveTags(t) : [], t.type === 'D' ? '내가 뺀 것' : '내가 고른 조건', `${rcountHTML(items.length, ak)}<div class="grid in49${ak ? ' appear' : ''}"${ak ? appearAttr(ak) : ''}>${grid}</div>`);
-      body += `<div class="hint">${ICON.sliders}${hintText('post', t.type)}${resetBtn(t, mode)}</div>`;
-      if (t.type === 'D'){
+      if (t.type === 'D'){   // V22_FB_54 (D125): 안내 띠 + 상자 → 상자 하나(칩 그대로)
         const uniq = a => a.filter((x, i) => a.indexOf(x) === i);
         const stys = uniq(items.map(p => p.styles[0])), brs = uniq(items.map(p => p.brand));
-        body += `<div class="box post49"><div class="bt">원하지 않는 것을 눌러 빼 주세요</div>
-          <div class="bt2">니트 종류</div><div class="brands">${stys.map(v => { const off = exHas('style',v); return `<button class="bchip ${off?'off':''}" data-act="ex-style" data-v="${esc(v)}" aria-pressed="${off}">${esc(styleName(v))}${ICON.xs}</button>`; }).join('')}</div>
-          <div class="sep"></div><div class="bt">자주 본 브랜드</div>
-          <div class="brands">${brs.map(b => { const off = exHas('brand',b); return `<button class="bchip ${off?'off':''}" data-act="ex-brand" data-v="${esc(b)}" aria-pressed="${off}">${esc(b)}${ICON.xs}</button>`; }).join('')}</div></div>`;
+        body += askBox('post', t, mode, `<div class="bt2">니트 종류</div><div class="brands">${stys.map(v => { const off = exHas('style',v); return `<button class="bchip ${off?'off':''}" data-act="ex-style" data-v="${esc(v)}" aria-pressed="${off}">${esc(styleName(v))}${ICON.xs}</button>`; }).join('')}</div>
+          <div class="sep"></div><div class="bt2">자주 본 브랜드</div>
+          <div class="brands">${brs.map(b => { const off = exHas('brand',b); return `<button class="bchip ${off?'off':''}" data-act="ex-brand" data-v="${esc(b)}" aria-pressed="${off}">${esc(b)}${ICON.xs}</button>`; }).join('')}</div>`);
       } else {
-        body += condPanel(cond);
+        body += askBox('post', t, mode, condRows(cond));
       }
     } else {
       body += topCardPost(chosen ? liveTags(t) : [], t.type === 'D' ? '내가 뺀 것' : '내가 고른 조건');   /* V22_FB_47 추가 (D99): 결정은 '조건' 대신 '뺀 것' */   // v20: 'AI 기본 설정' 태그 줄 없앰(빈 패널과 맞춤 · 사전에도 없는 단서)
@@ -2747,7 +2790,7 @@ function renderScale(st){
     const code = itCode(st, it), v = ans(code);
     if (it.opts) return `<div class="q"><div class="qt">${qNo(it.code)}${esc(it.text)}</div><div class="hopts">${it.opts.map(o => `<button class="opt ${v===o[0]?'on':''}" data-act="opt" data-code="${code}" data-v="${o[0]}"><span class="rd"></span><span class="otx">${otxHTML(o[1])}${o[2] ? `<small class="osub">${osubHTML(o[2])}</small>` : ''}</span></button>`).join('')}</div></div>`;
     const btns = [1,2,3,4,5,6,7].map(n => `<button class="${v===n?'on':''}" data-act="lk" data-code="${code}" data-v="${n}">${n}</button>`).join('');
-    if (it.l) return `<div class="q sd"><div class="qt">${qNo(it.code)}${esc(it.text || '')}</div><div class="lk">${btns}</div><div class="anch"><span>${esc(it.l)}</span><span>${esc(it.r)}</span></div></div>`;
+    if (it.l) return `<div class="q sd"><div class="qt">${qNo(it.code)}${esc(it.text || '')}</div><div class="lk">${btns}</div><div class="anch"><span>${esc(it.l)}${it.ls ? `<small class="asub">${esc(it.ls)}</small>` : ''}</span><span>${esc(it.r)}${it.rs ? `<small class="asub">${esc(it.rs)}</small>` : ''}</span></div></div>`;
     return `<div class="q"><div class="qt">${qNo(it.code)}${esc(it.text)}</div><div class="lk">${btns}</div><div class="anch"><span>전혀 그렇지 않다</span><span>매우 그렇다</span></div></div>`;
   }).join('');
   pbody.innerHTML = h;
@@ -3223,7 +3266,7 @@ function applyNudge(sp, scr){
   else if (sp.v === 'rec' && sp.mode === 'live' && t.nudge === 'rec') target = scr.querySelector(t.type === 'A' ? '.cond' : (S.cond.X2 === '사전' ? '.box' : '.grid'));
   if (target && !t.finger && !(sp.v === 'home' && t.shine)) target.classList.add('nudge');   // V22_FB_3: 손가락이 뜨면 테두리 없이 손가락만 · V22_FB_8: 홈은 테두리 대신 반짝임
   // 추천 화면은 상품 · 조건 하나를 가리키지 않도록 영역 위 안내 줄(⇄ 아이콘)을 위에서 아래로 가리켜요
-  if (target && t.finger) placeFinger(scr, (sp.v === 'home' || sp.v === 'search') ? target : (scr.querySelector('.hint svg') || target), sp.v === 'home' || sp.v === 'search');
+  if (target && t.finger) placeFinger(scr, (sp.v === 'home' || sp.v === 'search') ? target : (scr.querySelector('.hint svg, .ask125 .ah svg') || target), sp.v === 'home' || sp.v === 'search');
 }
 const FINGER_SVG = '<svg viewBox="0 0 24 24" fill="#fff" stroke="#16181D" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15V4a2 2 0 0 1 4 0v5a2 2 0 0 1 4 0v1a2 2 0 0 1 4 0z"/><path d="M11 9v3M15 10v2M19 11v1" fill="none"/></svg>';
 /* 손가락 끝(아이콘 왼쪽 위 약 9/24 · 2/24)이 누를 곳을 가리키게 · 홈 = [추천받기] 가운데를 아래에서, 추천 = 안내 줄 아이콘을 위에서(뒤집어서 · 특정 상품 · 조건을 가리지 않게) */
