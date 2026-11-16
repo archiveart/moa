@@ -23,6 +23,10 @@
   V22_FB_56 배포본 (11/16, 허준영 · Claude): 아영 FB_56(v22.56 · FB_54–56: 22번 문구 · 23번 양 끝 풀이 · 'AI 추천 결과 6개' 보라 띠 · 고르는 칸 상자 하나 · 사전 × 결정 사진 버튼 · ✦ 보라) 그대로 + 배포본 층(FB_53 배포본과 같음 · 아래 ①–⑦) — STUDY_VERSION은 v22.56 그대로 · 참가자 화면 · 문항 · 저장 열은 FB_56과 같음
        · ⑧ 같은 파일을 두 주소에 올림(11/16 준영): GitHub(archiveart.github.io/moa) · Netlify(회사망에서 GitHub가 막히는 분용) — 파일 안에 주소를 적은 곳 없음 · 저장 · 참여 번호 순번 · 칸 배정은 둘 다 같은 Firebase(moa-t2-study)
          · '이미 참여를 마치셨어요'(이 브라우저 기록 · 쿠키)는 주소마다 따로 → 같은 사람이 두 주소로 두 번 들어오면 브라우저에서는 못 막음(다른 브라우저로 들어오는 것과 같음) · 본 설문 링크는 둘 다 ?src=agency
+       · ⑨ 엠브레인 연동(11/16 · 업체 요청): 업체 링크(?src=agency)에 붙은 ?pid=값 = 패널 ID — 참여 번호(M001~)는 그대로 받고 패널 ID는 따로 저장(응답 panel_id · 세션 panelId · 새로 고침 · 이어 하기에도 유지)
+         · 끝나면 엠브레인 주소로: 완료 · 스크리닝 탈락(나이 · 구매 0회) · 불성실(3번 주의 점검 오답 · 끝낸 시간 − 화면 이탈 < 160초) · 쿼터 초과(모집 마감본) — 주소는 CONFIG.PANEL.RETURN에만 넣음(비어 있으면 이동 안 함 · {pid} 자리나 끝에 pid=값)
+         · 끝 화면(연구 안내)에 [응답 완료 — 엠브레인으로 돌아가기] 단추 + 15초 뒤 자동 이동 · 다른 링크의 ?pid=는 예전처럼 참여 번호 · 휴대폰 'PC로 접속' 화면은 이동 없음 · 주소에 ?가 두 번 와도(…?src=agency?pid=1) 읽음
+       · ⑩ 미리보기 번호 겹침 막기(11/16): ?dev=1 번호를 T + 7자로(예 TL3K9Q2A) — 예전엔 브라우저마다 R001부터라 같은 번호의 예전 기록을 덮어씀(인지 인터뷰 R007 · R010 · R012가 그렇게 바뀜) · CONFIG.DEV_SAFE_PID
        · ① 파일럿 링크 마감(PILOT_CLOSED) — ?pilot=1(인지 · 사전 · 미니 · 실제 진행)은 '모집이 끝났어요' · 리허설(src=rehearsal) · 미리보기(?dev=1) · 본 설문 링크는 그대로
        · ② 연결 리허설 링크(?pilot=1&src=rehearsal)는 '1회 참여' 막기에서 제외(ONE_TIME) — 같은 브라우저에서 32회 자동 리허설
        · ③ 파일럿 · 미니 배정 코드(MINI_ARMS · PILOT_BALANCE) — ①로 링크가 닫혀 있어 실제로는 안 쓰임 · ④ D66 남은 한 자리(미리보기 건너뛰기 경로의 t_submit도 1회차만)
@@ -1528,6 +1532,13 @@ const CONFIG = {
   PILOT2_START: 0,              // 배포본 ⑦(11/15 0시 끔): 0 = 파일럿 ②(?src=pilot2)도 R(공통 순번 meta/seq/R1) · 805로 두면 M805~(11/14 20:38–11/15 0시 그렇게 받은 3명 = M805–M807)
   PID_SAFE_LOCAL: true,         // 배포본 ⑤(11/13): 서버 순번을 못 받으면 겹치지 않는 임시 번호(RL…) + 순번 받기 한 번 더 — false면 예전(브라우저마다 R001부터)
   PILOT_CLOSED: true,           // V22_FB_37(11/11 밤 · 팀 요청 · 실제 진행 16명으로 마무리): ?pilot=1 링크(① 인지 ?src=think · ② 사전 ?src=pre · 미니 ?src=mini · ③ 실제 진행 ?src=run · src 없는 파일럿)는 '모집이 끝났어요'에서 멈춤 — 리허설(src=rehearsal) · 미리보기(?dev=1) · 본 설문 링크는 그대로 · 이 브라우저에서 하던 같은 버전 파일럿은 이어서. false면 다시 열림
+  PANEL: {                      // 배포본 ⑨(11/16 · 엠브레인 연동): 업체 링크(?src=agency)의 ?pid=값 = 패널 ID — 참여 번호(M001~)는 그대로 · 패널 ID는 응답 panel_id로 따로 저장
+    ON: true, PARAM: 'pid', SRC: 'agency',
+    RETURN: { complete: '', screen: '', quota: '', bad: '' },   // 엠브레인 돌아가는 주소 — 받으면 여기에만 넣기(비어 있으면 이동 안 함) · 주소에 {pid}가 있으면 그 자리에, 없으면 끝에 pid=값을 붙임
+    FAST_BAD_SEC: 160,          // 끝냈을 때 (전체 − 화면 이탈) 시간이 이 초 미만이면 완료 대신 '불성실' 주소로(사전등록 160초 · 0이면 안 함 · 미리보기는 안 봄)
+    AUTO_SEC: 15,               // 끝 화면에서 자동으로 이동하기까지 초(0이면 단추만)
+  },
+  DEV_SAFE_PID: true,           // 배포본 ⑩(11/16): 미리보기(?dev=1) 번호를 T + 7자로 — 예전엔 브라우저마다 R001부터라 같은 번호의 예전 기록을 덮어씀 · false면 예전
   PILOT_BALANCE: true,          // V22_FB_30(11/8 허준영): 파일럿 링크는 시점 × 반복 네 묶음을 번갈아 채우고 그 시점의 8칸 중 적게 쓰인 칸으로(meta/pilotAssign · 본 설문 칸 수는 안 올림). false면 예전처럼 16칸 배정 + ?retry=auto 로만 균형
   PHONE_DUP_BLOCK: false,       // true면 같은 번호(지문)로 이미 끝낸 기록이 Firebase에 있을 때 막음. V13 결정(번호는 추첨에만)대로 기본은 false — 연구자 화면에 '번호 중복' 표시만
   SURVEY_END_TEXT: '11월 22일', // 디브리핑: 이 날짜까지 연구 내용 비밀 (교수님 7쪽 · 장표 50: '11월 18일' → 22일)
@@ -1830,14 +1841,31 @@ if (CONFIG.SEARCH_FLOW) Object.assign(TASK_STEPS[0], {btn:'상품 추천받기',
 /* =========================================================
    상태
    ========================================================= */
-const QS = new URLSearchParams(location.search);
+const QS = new URLSearchParams(location.search.replace(/^\?/, '').replace(/\?/g, '&'));   // 배포본 ⑨: 업체가 ?를 두 번 붙여도(…?src=agency?pid=1) 읽음
 const DEV = QS.get('dev') === '1' || /dev/.test(location.hash);
 const PILOT = QS.get('pilot') === '1' || CONFIG.PID_START >= 900;
 if (CONFIG.M1_1_SUBJECT) BLOCKS.M1.items.find(i => i.code === 'Q11').text = '나는 원하는 만큼 추천을 바꿀 수 있었다';   // V22_FB_4: 4번 각색안(기본 꺼짐)
 if (QS.get('retry') === '0' && !CONFIG.RETRY_ALWAYS) CONFIG.RETRY_ON = false;
 const RETRY_AUTO = !CONFIG.RETRY_ALWAYS && QS.get('retry') === 'auto';   // V22_FB_7 수정 목록 9: 사전검사 링크 — 칸 배정 뒤 시점마다 반복 / 한 번만 중 적게 배정된 쪽(같으면 무작위). 본조사 링크에는 붙이지 않음   // 파일럿 비교: 반복 허용(기본) vs 한 번만   // 파일럿 링크는 ?pilot=1 (참여 번호 R901~, 응답에 pilot=1) — 장표 5.6 ⑨ · 5.7
 const SRC = String(QS.get('src') || '').replace(/[^0-9A-Za-z\uac00-\ud7a3_-]/g, '').slice(0, 30);   // 모집 경로: 링크 뒤 ?src=friend(지인) · ?src=agency(업체) — 연구자 화면에서 구분 · 표에 src 열
-const ONE_TIME = CONFIG.ONE_TIME_ONLY && !(PILOT && SRC === 'rehearsal');   // V22_FB_30: 연결 리허설 링크(?pilot=1&src=rehearsal)는 같은 브라우저에서 32회 돌려야 해서 '한 번만' 막기 제외 · 그 밖에는 CONFIG.ONE_TIME_ONLY 그대로
+const ONE_TIME = CONFIG.ONE_TIME_ONLY && !(PILOT && SRC === 'rehearsal');
+/* 배포본 ⑨: 엠브레인 연동 — 업체 링크(?src=agency)의 ?pid=값은 패널 ID(참여 번호 아님) · 끝나면 CONFIG.PANEL.RETURN 주소로 */
+function panelMode(){ const P = CONFIG.PANEL; return !!(P && P.ON && !PILOT && SRC.toLowerCase() === String(P.SRC || 'agency').toLowerCase()); }
+function panelFromUrl(){ if (!panelMode()) return ''; const v = QS.get(CONFIG.PANEL.PARAM || 'pid'); return v == null ? '' : String(v).trim().slice(0, 100); }
+function urlPid(){ return panelMode() ? null : QS.get('pid'); }   // 업체 링크가 아니면 ?pid=는 예전처럼 참여 번호
+function panelReturnUrl(kind){
+  const P = CONFIG.PANEL || {}, u = String(((P.RETURN || {})[kind]) || '').trim(), id = (S && S.panelId) || panelFromUrl();
+  if (!u || !panelMode() || !id) return '';
+  const e = encodeURIComponent(id);
+  return u.indexOf('{pid}') >= 0 ? u.split('{pid}').join(e) : /=$/.test(u) ? u + e : u + (u.indexOf('?') >= 0 ? '&' : '?') + (P.PARAM || 'pid') + '=' + e;
+}
+async function panelGo(kind, ms){   // 주소가 비어 있으면 아무것도 안 함 · 이동 전에 마지막 상태를 Firebase에 한 번 더(완료는 제출 때 이미 저장)
+  const url = panelReturnUrl(kind); if (!url) return false;
+  try{ if (S && S.assigned && !S.submitted && fbReady()) await fbWait(Promise.all([fbdb.ref('participants/' + S.pid).set(fbSession()), fbdb.ref('live/' + S.pid).set(fbLive())]), 4000); }catch(e){}
+  setTimeout(() => { try{ location.replace(url); }catch(e){ location.href = url; } }, ms == null ? 1500 : ms);
+  return true;
+}
+function panelNote(){ const ins = document.querySelectorAll('.block .in'); const n = ins[ins.length - 1]; if (n) n.insertAdjacentHTML('beforeend', '<p class="muted" style="margin-top:14px">잠시 후 엠브레인 화면으로 돌아가요.</p>'); }   // V22_FB_30: 연결 리허설 링크(?pilot=1&src=rehearsal)는 같은 브라우저에서 32회 돌려야 해서 '한 번만' 막기 제외 · 그 밖에는 CONFIG.ONE_TIME_ONLY 그대로
 function pidStart(){ return PILOT ? Math.max(901, CONFIG.PID_START) : (CONFIG.MAIN_PREFIX && isPilot2()) ? CONFIG.PILOT2_START : CONFIG.PID_START; }   // 배포본 ⑦: PILOT2_START > 0일 때만 파일럿 ② M(지금 0 → R)
 const KEY_SESSION = 'sbcx_session_v1', KEY_DONE = 'sbcx_done_v1', KEY_RECORDS = 'sbcx_records_v1', KEY_LOTTERY = 'sbcx_lottery_v1';
 const KEY_SEQ = 'sbcx_seq_v1', KEY_PHONES = 'sbcx_phones_v1', KEY_RESTART = 'sbcx_restart_from_v1';
@@ -1857,7 +1885,7 @@ function won(n){ return n.toLocaleString('ko-KR') + '원'; }
 function pad3(n){ return String(n).padStart(3, '0'); }
 function isPilot2(){ return !PILOT && !DEV && /^pilot2$/i.test(SRC) && CONFIG.PILOT2_START > 0; }   // 배포본 ⑦: 파일럿 ② 링크(?src=pilot2)
 function pidPre(){ return (CONFIG.MAIN_PREFIX && !PILOT && !DEV && (!/^pilot[24]$/i.test(SRC) || isPilot2())) ? CONFIG.MAIN_PREFIX : CONFIG.PID_PREFIX; }   // 배포본 ⑥ · ⑦: 본 설문 M001~ · 파일럿 · 리허설 · 미리보기 R(⑦ 끔)
-function newPid(){ const n = (load(KEY_SEQ) || 0) + 1; store(KEY_SEQ, n); if (CONFIG.PID_SAFE_LOCAL && !DEV) return pidPre() + 'L' + Date.now().toString(36).toUpperCase().slice(-6) + Math.floor(Math.random() * 36).toString(36).toUpperCase(); return pidPre() + pad3(n + pidStart() - 1); }   // 배포본 ⑤: 서버 순번 전 임시 번호(RL + 7자 · 연구자 화면의 옛 번호 규칙 R+9자 이상과 안 겹치게) — 순번을 받으면 바뀜 · 못 받으면 이 번호로 저장(겹치지 않음)
+function newPid(){ const n = (load(KEY_SEQ) || 0) + 1; store(KEY_SEQ, n); if (DEV && CONFIG.DEV_SAFE_PID) return 'T' + Date.now().toString(36).toUpperCase().slice(-6) + Math.floor(Math.random() * 36).toString(36).toUpperCase();   /* 배포본 ⑩ */ if (CONFIG.PID_SAFE_LOCAL && !DEV) return pidPre() + 'L' + Date.now().toString(36).toUpperCase().slice(-6) + Math.floor(Math.random() * 36).toString(36).toUpperCase(); return pidPre() + pad3(n + pidStart() - 1); }   // 배포본 ⑤: 서버 순번 전 임시 번호(RL + 7자 · 연구자 화면의 옛 번호 규칙 R+9자 이상과 안 겹치게) — 순번을 받으면 바뀜 · 못 받으면 이 번호로 저장(겹치지 않음)
 
 function cellToCond(c){
   const i = c - 1, s = i % 2, o = (i >> 1) % 2, t = (i >> 2) % 2, w = (i >> 3) % 2;
@@ -1885,7 +1913,7 @@ function newTask(n, type, set){
 }
 function newSession(cond, source){
   const s = {
-    pid: QS.get('pid') || newPid(), study: CONFIG.STUDY_VERSION + (PILOT ? ' · 파일럿' : '') + (CONFIG.M1_1_SUBJECT ? ' · 4번 주어' : ''), dev: DEV, pilot: PILOT, src: SRC,
+    pid: urlPid() || newPid(), panelId: panelFromUrl(), study: CONFIG.STUDY_VERSION + (PILOT ? ' · 파일럿' : '') + (CONFIG.M1_1_SUBJECT ? ' · 4번 주어' : ''), dev: DEV, pilot: PILOT, src: SRC,
     startedAt: new Date().toISOString(), t0wall: Date.now(), cond, assignSource: source, assigned: false,
     stepIdx: 0, answers:{}, orders:{}, consent:null, tasks:[], log:[], resumed:0, done:false, submitted:false,
     env:{ua:navigator.userAgent, sw:screen.width, sh:screen.height, dpr:window.devicePixelRatio, vw:innerWidth, vh:innerHeight},
@@ -3156,7 +3184,14 @@ function renderTaskPanel(st){
 }
 function demoOk(){ return ans('Q2') != null && ans('Q3') != null && (!CONFIG.ATT0_ON || ans('ATT0') != null); }   // v20: 자극 전 = 나이 · 옷 구매 빈도 · 주의 점검 T0
 /* 마지막 화면 = 디브리핑(5.7 문안). 제출을 마친 뒤 보여요 */
+function panelEndInfo(){   // 배포본 ⑨: 끝 화면 단추 — 160초 미만이면 '불성실' 주소, 아니면 '완료' 주소(미리보기는 늘 완료)
+  if (!panelMode() || !S || !S.panelId) return null;
+  const P = CONFIG.PANEL, kind = (!DEV && P.FAST_BAD_SEC > 0 && S.activeSec != null && S.activeSec < P.FAST_BAD_SEC) ? 'bad' : 'complete', url = panelReturnUrl(kind);
+  if (!url) return DEV ? {kind, url:'', html:`<p class="muted" style="margin-top:14px">[미리보기] 패널 ID ${esc(S.panelId)} · 돌아갈 주소(CONFIG.PANEL.RETURN.${kind})가 아직 비어 있어요.</p>`} : null;
+  return {kind, url, html:`<div style="margin-top:18px;padding:16px;border:1px solid var(--line, #E2E8F0);border-radius:12px"><button class="btn" id="panelBack" style="width:100%">응답 완료 — 엠브레인으로 돌아가기</button><p class="muted" style="margin-top:10px">이 단추를 눌러야 엠브레인에 참여 완료로 처리돼요.${P.AUTO_SEC > 0 ? ` <span id="panelCount">${P.AUTO_SEC}</span>초 뒤에는 자동으로 이동해요.` : ''}</p></div>`};
+}
 function renderEnd(){
+  const ret = panelEndInfo();
   pbody.innerHTML = `<div class="saved">${SVG.check}응답이 저장되었어요</div>
     <div class="debrief">
       <h1 class="pt">연구 안내</h1>
@@ -3166,9 +3201,14 @@ function renderEnd(){
       <p>다른 참여자의 응답에 영향을 주지 않도록, 조사가 끝나는 <b>${esc(CONFIG.SURVEY_END_TEXT)}</b>까지는 연구 내용을 다른 사람에게 알리지 말아 주세요.</p>
       <p>목적을 알고 나서 응답이 쓰이길 원하지 않으시면, <b>${esc(CONFIG.WITHDRAW_BY)}</b>까지 아래 연락처로 참여 번호를 보내 주세요. 해당 응답을 지웁니다.</p>
       <div class="db-box"><b>문의</b><span>${esc(CONFIG.CONTACT)}</span><b class="pn">참여 번호</b><span class="pn">${esc(S.pid)}</span></div>
-      <p class="muted" style="margin-top:14px">이제 창을 닫으셔도 됩니다.</p>
+      ${ret ? ret.html : '<p class="muted" style="margin-top:14px">이제 창을 닫으셔도 됩니다.</p>'}
     </div>`;
   setFoot(null);
+  if (ret && ret.url){   // 배포본 ⑨
+    const b = document.getElementById('panelBack'); if (b) b.onclick = () => { b.disabled = true; panelGo(ret.kind, 0); };
+    let left = CONFIG.PANEL.AUTO_SEC || 0; const c = document.getElementById('panelCount');
+    if (left > 0){ const tm = setInterval(() => { left--; if (c) c.textContent = String(Math.max(0, left)); if (left <= 0){ clearInterval(tm); if (b) b.disabled = true; panelGo(ret.kind, 0); } }, 1000); }
+  }
 }
 
 /* 패널 클릭 */
@@ -3428,8 +3468,9 @@ function screenMsg(why){
 function screenOut(why){
   log('screen_out', {reason:why, age:ans('Q2'), shop:ans('Q3'), att:ans('ATT0')});
   S.status = 'screened_out'; S.screenReason = why; delete S.phone; S.done = true; save();
-  if (!DEV && ONE_TIME) markDone({pid:S.pid, at:new Date().toISOString(), screened:true, reason:why});
+  if (!DEV && ONE_TIME) markDone({pid:S.pid, at:new Date().toISOString(), screened:true, reason:why, panelId:S.panelId || ''});
   blockScreen(`<h2 class="pt">참여해 주셔서 감사합니다</h2><p class="lead">${screenMsg(why)} ${CONFIG.PHONE_ON ? '적어 주신 번호와 ' : ''}응답은 저장하지 않았어요.</p>`);
+  if (panelMode() && S.panelId && panelReturnUrl(why === 'att' ? 'bad' : 'screen')){ panelNote(); panelGo(why === 'att' ? 'bad' : 'screen', 2500); }   // 배포본 ⑨: 3번 주의 점검 오답 = 불성실 · 나이 · 구매 0회 = 스크리닝 탈락
 }
 /* 중복 참여 막기: 끝난 표시를 localStorage와 쿠키 두 곳에 남기고, 둘 중 하나라도 있으면 막아요 */
 const DONE_COOKIE = 'sbcx_done';
@@ -3455,7 +3496,7 @@ async function assign(){
   if (CONFIG.FIREBASE_ASSIGN && !DEV && fbReady()){
     const r = await fbAssign(u ? u.cond.cell : null);
     if (r && r.dup) return {dup:true};
-    if (r){ fbDone = true; if (!u && r.cell >= 1 && r.cell <= 16){ S.cond = cellToCond(r.cell); S.assignSource = r.miniArm ? (r.miniFail ? 'random(mini-fail)' : 'firebase-mini') : r.pilotArm ? 'firebase-pilot' : 'firebase'; } else if (!u && r.cellFail) S.assignSource = 'random(cell-fail)'; if (r.pid && !QS.get('pid')) S.pid = r.pid;
+    if (r){ fbDone = true; if (!u && r.cell >= 1 && r.cell <= 16){ S.cond = cellToCond(r.cell); S.assignSource = r.miniArm ? (r.miniFail ? 'random(mini-fail)' : 'firebase-mini') : r.pilotArm ? 'firebase-pilot' : 'firebase'; } else if (!u && r.cellFail) S.assignSource = 'random(cell-fail)'; if (r.pid && !urlPid()) S.pid = r.pid;
       if (r.miniArm){ S.miniArm = r.miniArm; log('mini_assign', {arm:r.miniArm, cell:S.cond.cell}); }   // V22_FB_30
       if (r.pilotArm){ S.pilotArm = r.pilotArm; if (r.retryOn != null && !S.retryAuto){ S.retryAuto = {on:r.retryOn, source:'firebase-pilot', x2: S.cond.X2 === '사전' ? 'pre' : 'post', arm:r.pilotArm}; applyRetry(); } log('pilot_assign', {arm:r.pilotArm, cell:S.cond.cell, retryOn:CONFIG.RETRY_ON ? 1 : 0}); } }   // V22_FB_30
     else if (!u) S.assignSource = 'random(firebase-fail)';
@@ -3463,13 +3504,13 @@ async function assign(){
   if (!fbDone && CONFIG.SERVER_URL && !DEV){
     try{
       const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 5000);
-      const q = '?pre=' + encodeURIComponent(pidPre()) + '&start=' + CONFIG.PID_START + (QS.get('pid') ? '&pid=' + encodeURIComponent(S.pid) : '') + (u ? '&cell=' + u.cond.cell : '');
+      const q = '?pre=' + encodeURIComponent(pidPre()) + '&start=' + CONFIG.PID_START + (urlPid() ? '&pid=' + encodeURIComponent(S.pid) : '') + (u ? '&cell=' + u.cond.cell : '');
       const r = await fetch(CONFIG.SERVER_URL + q, {signal:ctl.signal});
       clearTimeout(to);
       const j = await r.json();
       if (j.dup) return {dup:true};
       if (!u && j.cell >= 1 && j.cell <= 16){ S.cond = cellToCond(j.cell); S.assignSource = 'server'; }
-      if (j.pid && !QS.get('pid')) S.pid = j.pid;
+      if (j.pid && !urlPid()) S.pid = j.pid;
     }catch(e){ if (!u) S.assignSource = 'random(server-fail)'; }
   }
   await assignRetry();   // V22_FB_7: ?retry=auto일 때만 배정(아니면 그대로)
@@ -3583,11 +3624,12 @@ function buildRow(){
     if (pv) ss[pv.step] = (ss[pv.step] || 0) + (elapsed() - pv.t);
     const s1 = id => Math.round((ss[id] || 0) / 100) / 10;
     r.scenario_sec = s1('P4'); r.task2intro_sec = s1('K2_intro'); r.ready_sec = s1('P6'); }
+  r.panel_id = S.panelId || '';   // 배포본 ⑨: 엠브레인 패널 ID(업체 링크 ?pid=) · 없으면 빈칸
   return r;
 }
 /* CSV 두 번째 머리줄: 열마다 문항 문장(또는 설명) */
 const META_LABEL = {search_query:'검색어(마지막 · V22_FB_45부터)', search_via:'검색 방법(typed 직접 입력 / chip 추천 검색어)', search_sec:'검색창을 연 뒤 검색까지(초 · 1회차)', n_search:'검색한 횟수', retry_on:'[다시 해 보기] 허용(1 반복 · 0 한 번만) — 기본 1 · V22_FB_23부터 늘 1(RETRY_ALWAYS) · 그전에는 ?retry=0이면 0 · ?retry=auto면 시점마다 적게 배정된 쪽(로그 retry_assign)', pid:'참가자 ID', status:'상태(complete 완료 / restarted 재시작 / incomplete 미완료)', analysis_include:'분석 포함(1=완료이고 미리보기 아님)', restart_of:'이 세션 앞에 [처음으로]로 그만둔 세션 ID',
-  study:'실험물 버전', dev:'연구자 미리보기(1)', started_at:'시작 시각', finished_at:'제출 시각', restarted_at:'재시작한 시각', total_sec:'전체 걸린 시간(초)',
+  study:'실험물 버전', panel_id:'엠브레인 패널 ID(업체 링크 ?src=agency&pid=값 · 배포본 ⑨ · 없으면 빈칸)', dev:'연구자 미리보기(1)', started_at:'시작 시각', finished_at:'제출 시각', restarted_at:'재시작한 시각', total_sec:'전체 걸린 시간(초)',
   assign_source:'배정 방식', cell:'16칸 번호', group:'집단(1~4)', W:'쇼핑 목적', X2:'통제 시점', order:'과업 순서', Q32_task:'Q32에서 고른 방식이 몇 번째 과업이었는지(1/2)', Q32_opt_order:'Q32 보기 순서(D=빼기, A=조건 고르기)',
   att_all_ok:'주의 점검 모두 통과(1)', n_reset:'[선택 초기화] 누른 횟수', n_review:'[화면 다시 보기] 누른 횟수', n_review_mc:'21 · 22번(조작점검) 화면에서 [화면 다시 보기] 누른 횟수(n_review에 포함 · V22_FB_14부터)', nudge_home:'홈 [추천받기] 손가락이 떴는지(1) — 아무것도 누르지 않고 20초(FB_3 기준 · D22) · V22_FB_8–18 행은 10초 반짝임 기준이었음', shine_home:'홈 [추천받기] 반짝임이 떴는지(1) — 첫 방문 홈에서 10초 동안 안 누름(V22_FB_19 행만 · FB_20부터 반짝임 꺼서 열 없음)', n_mismatch:'결정 — 첫 추천 6개 중 고른 것(뺀 종류 · 브랜드)에 걸린 상품 수(V22_FB_19 행만 · FB_20부터 맞지 않는 상품만 교체라 n_replaced와 같아서 열 없음)', nudge_rec:'추천 화면 클릭 유도가 떴는지(1)', gate_sec:'[완료] 뒤 [설문 시작하기]까지(초)', n_retry:'[다시 해 보기] 누른 횟수(네 칸 모두 홈부터 다시 · 고른 것 비움)', n_rounds:'회차 수(결과를 받은 횟수 = n_retry + 1)', rounds:'회차별 선택(> 로 구분, 마지막이 최종)', Q27_ok:"반영 확인 '예'(1)", Q28_ok:'유형 조작점검 정답(1)', Q29_ok:'시점 조작점검 정답(1)',
   n_leave:'화면 이탈 횟수(다른 탭·창으로 간 횟수, 제출 전까지)', leave_sec:'화면 이탈 시간 합(초)', leave_log:'이탈 기록: 화면ID@떠난 시각(초)+떠나 있던 시간(초)',
@@ -3768,7 +3810,7 @@ async function fbAssign(fixedCell){   // Apps Script와 같은 역할: {dup} | {
       const v = snap && snap.val();
       if (v && v.done && v.pid !== S.pid && CONFIG.PHONE_DUP_BLOCK) return {dup:true};
     }
-    if (!QS.get('pid')){
+    if (!urlPid()){
       const start = pidStart();
       let res = await fbWait(fbdb.ref('meta/seq/' + pidPre() + start).transaction(c => (c || 0) + 1), 6000);   // 배포본 ⑥: 본 설문은 meta/seq/M1
       if (CONFIG.PID_SAFE_LOCAL && !(res && res.committed)) res = await fbWait(fbdb.ref('meta/seq/' + pidPre() + start).transaction(c => (c || 0) + 1), 8000);   // 배포본 ⑤: 한 번 더(8초)
@@ -3816,6 +3858,7 @@ async function doSubmit(){
   S.finishedAt = new Date().toISOString(); S.status = 'complete';
   log('submit_all', {lottery: !!phone});
   const row = buildRow();
+  S.activeSec = Math.max(0, (row.total_sec || 0) - (row.leave_sec || 0));   // 배포본 ⑨: 끝낸 시간 − 화면 이탈(불성실 160초 판단 · 사전등록과 같은 계산)
   const recs = load(KEY_RECORDS) || []; recs.push(exportJSON()); store(KEY_RECORDS, recs);
   const lot = {pid:S.pid, phone, ph_hash:S.phoneHash || '', att_all_ok:row.att_all_ok, at:S.finishedAt};
   if (phone){ const l = load(KEY_LOTTERY) || []; l.push(lot); store(KEY_LOTTERY, l); }
@@ -3825,7 +3868,7 @@ async function doSubmit(){
   await fbSubmit(row, lot);
   try{ if (window.parent !== window) window.parent.postMessage({type:'SBCX_COMPLETE', row}, '*'); }catch(e){}
   S.submitted = true;
-  if (!DEV && ONE_TIME) markDone({pid:S.pid, at:S.finishedAt});
+  if (!DEV && ONE_TIME) markDone({pid:S.pid, at:S.finishedAt, panelId:S.panelId || ''});
   goNext();
   try{ localStorage.removeItem(KEY_SESSION); }catch(e){}
 }
@@ -3986,7 +4029,8 @@ function init(){
     blockScreen(`<h2 class="pt">PC로 접속해 주세요</h2><p class="lead">이 연구는 PC 화면에 맞춰져 있어요. 아래 버튼으로 링크를 복사해 PC에서 열어 주세요.</p><button class="btn" style="margin-top:20px" onclick="navigator.clipboard&&navigator.clipboard.writeText(location.href).then(()=>this.textContent='복사했어요')">링크 복사</button>`);
     return;
   }
-  const done = getDone();
+  let done = getDone();
+  if (done && panelFromUrl() && done.panelId && done.panelId !== panelFromUrl()) done = null;   // 배포본 ⑨: 같은 PC라도 다른 패널 ID(다른 사람)면 새로 시작 · 같은 패널 ID는 막음
   if (done && done.screened && !DEV && ONE_TIME){
     blockScreen(`<h2 class="pt">참여해 주셔서 감사합니다</h2><p class="lead">${screenMsg(done.reason)}</p>`);
     return;
@@ -4003,7 +4047,7 @@ function init(){
     }
   }
   const saved = load(KEY_SESSION);
-  if (saved && !saved.done && String(saved.study).indexOf(CONFIG.STUDY_VERSION) === 0 && (saved.dev || [CONFIG.PID_PREFIX, CONFIG.MAIN_PREFIX].includes(String(saved.pid || '').charAt(0)))   /* 배포본 ⑥: M 번호도 이어 하기 */ && !((DEV || !ONE_TIME) && QS.get('fresh') === '1')){
+  if (saved && !saved.done && String(saved.study).indexOf(CONFIG.STUDY_VERSION) === 0 && (saved.dev || [CONFIG.PID_PREFIX, CONFIG.MAIN_PREFIX].includes(String(saved.pid || '').charAt(0)))   /* 배포본 ⑥: M 번호도 이어 하기 */ && (!panelFromUrl() || (saved.panelId || '') === panelFromUrl())   /* 배포본 ⑨: 다른 패널 ID면 새로 */ && !((DEV || !ONE_TIME) && QS.get('fresh') === '1')){
     S = saved; S.resumed = (S.resumed || 0) + 1; applyRetry(); buildSteps();
     const st = curStep();
     if (st && st.kind === 'app'){ const t = T(st.task); t.phase = 'home'; t.excl = []; t.cond = EMPTY_COND(); t.nudge = null; t.finger = false; t.shine = false; t.searched = false; }   // V22_FB_7 수정 목록 10: 이어 하기도 빈 채로 시작(D16) — 전에는 AI 기본값(오버핏 · 아크릴 · 숏)이 골라져 있었음
