@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>SBCX 2조 설문 현황</title>
+<!-- 엠브레인 공유용 현황(11/16 허준영 · Claude) — 숫자만 · 읽기만(쓰기 없음) · 읽는 곳: meta/ops · meta/quota · live의 M 번호만(본 설문) · 완료 기록은 participants/{번호}/activeSec 한 칸만 -->
+<style>
+  :root { --ink:#0F172A; --ink2:#475569; --ink3:#94A3B8; --line:#E2E8F0; --bg:#F8FAFC; --card:#FFFFFF; --ok:#15803D; --okbg:#DCFCE7; --bad:#B91C1C; --badbg:#FEE2E2; --acc:#4338CA; --accbg:#EEF2FF; --mute:#F1F5F9; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', sans-serif; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: -0.01em; }
+  .sub { color: var(--ink2); font-size: 13px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px 6px; margin-top: 16px; }
+  .head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+  .head b { font-size: 16px; }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  th, td { padding: 10px 6px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; white-space: normal; }
+  tr:last-child td { border-bottom: 0; }
+  th { font-size: 12px; color: var(--ink2); font-weight: 600; }
+  td.n { font-size: 18px; font-weight: 700; }
+  td small, .dim { color: var(--ink3); font-size: 12px; font-weight: 500; }
+  .badge { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+  .b-ok { background: var(--okbg); color: var(--ok); }
+  .b-full { background: var(--badbg); color: var(--bad); }
+  .b-acc { background: var(--accbg); color: var(--acc); }
+  .b-mute { background: var(--mute); color: var(--ink2); }
+  .note { color: var(--ink2); font-size: 12.5px; margin: 14px 0 0; padding-left: 18px; }
+  .note li { margin: 4px 0; }
+  .err { color: var(--bad); font-weight: 600; }
+  @media (max-width: 520px) { th, td { padding: 9px 4px; } td.n { font-size: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>SBCX 2조 설문 현황</h1>
+  <div class="sub">엠브레인 공유용 · 숫자만 보여요 · 저절로 새로 고침 · <span id="upd">불러오는 중…</span></div>
+
+  <div class="card">
+    <div class="head"><b>성별 쿼터</b><span id="phase" class="badge b-acc">—</span></div>
+    <table>
+      <thead><tr><th>성별</th><th>목표</th><th>완료 인정 (001)</th><th>남은 수</th><th>상태</th></tr></thead>
+      <tbody id="qt"><tr><td colspan="5" class="dim">불러오는 중…</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="head"><b>흐름</b><span class="sub">본 설문 시작 뒤 엠브레인 링크로 들어온 기록</span></div>
+    <table><tbody id="ft"><tr><td class="dim">불러오는 중…</td></tr></tbody></table>
+  </div>
+
+  <div class="card">
+    <div class="head"><b>오늘</b><span class="sub" id="today">한국 시간</span></div>
+    <table><tbody id="tt"><tr><td class="dim">불러오는 중…</td></tr></tbody></table>
+  </div>
+
+  <ul class="note">
+    <li><b>완료 인정(001)</b> = 끝까지 응답 · 3번 주의 점검 통과 · 160초 이상. 엠브레인 '조사 완료'로 보낸 사람이고, 쿼터는 이 숫자로 셉니다.</li>
+    <li><b>초과(002)</b> = 그 성별 목표가 찬 뒤 첫 화면에서 돌려보낸 사람. <b>제외(003)</b> = 대상 아님(만 19–39세 아님 · 최근 3개월 온라인 옷 구매 0회) 또는 불성실(3번 주의 점검 오답 · 160초 미만).</li>
+    <li>성별은 설문 첫 화면에서 물어요(남/여). 소프트 런치 목표는 남 16 · 여 16(32명), 전체 배포를 시작하면 남 90 · 여 90(180명)으로 바뀌어요. 불성실로 빠진 만큼은 '남은 수'에 그대로 남아 더 받아야 해요.</li>
+    <li>미리보기(&amp;dev=1) · 본 설문 시작 전 테스트 기록은 세지 않아요.</li>
+  </ul>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+(function () {
+  const CFG = { apiKey: 'AIzaSyBn2U9ttAK7YB1s_uNAidPHn8B6M6CigZA', projectId: 'moa-t2-study', appId: '1:820807917036:web:c77c2761d3624e1dc1b4c9',
+    databaseURL: 'https://moa-t2-study-default-rtdb.asia-southeast1.firebasedatabase.app' };
+  const QUOTA = { SOFT: { M: 16, F: 16 }, MAIN: { M: 90, F: 90 } };   // 설문 배포본 ⑭와 같은 숫자(meta/ops.quota가 있으면 그 숫자)
+  const MAIN_START = '2026-11-17T00:00:00+09:00', FAST = 160, STALE = 30 * 60 * 1000;
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const ts = v => { const t = Date.parse(v || ''); return isNaN(t) ? 0 : t; };
+  const kst = t => new Date(t + 9 * 3600000).toISOString().slice(0, 10);
+  const hms = t => new Date(t + 9 * 3600000).toISOString().slice(11, 19);
+  let ops = {}, quota = {}, live = {}, act = {}, conn = null, loaded = { ops: false, quota: false, live: false }, lastAt = 0;
+
+  if (typeof firebase === 'undefined') { $('upd').innerHTML = '<span class="err">연결 도구를 못 불러왔어요 — 새로 고침해 주세요</span>'; return; }
+  firebase.initializeApp(CFG); const db = firebase.database();
+
+  function target() {
+    const o = ops.quota || {}, main = !!(ops.fullStart && Date.now() >= ts(ops.fullStart)), d = main ? QUOTA.MAIN : QUOTA.SOFT, ov = (main ? o.main : o.soft) || {};
+    return { main, M: ov.M != null ? Number(ov.M) : d.M, F: ov.F != null ? Number(ov.F) : d.F };
+  }
+  function rows() {
+    const start = ts(ops.mainStart || MAIN_START);
+    return Object.keys(live).map(k => Object.assign({ key: k }, live[k] || {})).filter(r => String(r.src || '').toLowerCase() === 'agency' && !Number(r.dev) && !Number(r.pilot) && ts(r.startedAt) >= start);
+  }
+  function kindOf(r) {
+    if (r.submitted) { const a = act[r.key]; if (a === undefined || a === null) return 'checking'; return Number(a) < FAST ? 'bad160' : 'done'; }
+    if (r.status === 'screened_out') { const w = r.screenReason || ''; return w === 'quota' ? 'over' : w === 'att' ? 'badAtt' : 'notElig'; }
+    return Date.now() - ts(r.at) < STALE ? 'active' : 'dropped';
+  }
+  function fetchAct() {
+    Object.keys(live).forEach(k => { const r = live[k] || {}; if (!r.submitted || act[k] !== undefined) return; act[k] = null;
+      db.ref('participants/' + k + '/activeSec').once('value').then(s => { act[k] = s.val() == null ? FAST : s.val(); render(); }).catch(() => { delete act[k]; }); });
+  }
+  function render() {
+    if (!(loaded.ops && loaded.quota && loaded.live)) return;
+    const t = target(), qM = Number(quota.M) || 0, qF = Number(quota.F) || 0;
+    $('phase').textContent = (t.main ? '본 조사' : '소프트 런치') + ` · 목표 남 ${t.M} · 여 ${t.F}`;
+    const qrow = (lab, goal, n) => { const left = Math.max(0, goal - n), full = n >= goal;
+      return `<tr><td><b>${lab}</b></td><td>${goal}</td><td class="n">${n}</td><td>${left}</td><td>${full ? '<span class="badge b-full">마감 · 초과 002로 보냄</span>' : '<span class="badge b-ok">모집 중</span>'}</td></tr>`; };
+    const all = rows(), c = { done: 0, bad160: 0, badAtt: 0, notElig: 0, over: 0, active: 0, dropped: 0, checking: 0 }, td = kst(Date.now()), tc = { in: 0, done: 0 };
+    all.forEach(r => { const k = kindOf(r); c[k]++; if (kst(ts(r.startedAt)) === td) tc.in++; if (k === 'done' && kst(ts(r.at)) === td) tc.done++; });
+    const tot = t.M + t.F, sum = qM + qF;
+    $('qt').innerHTML = qrow('남', t.M, qM) + qrow('여', t.F, qF) +
+      `<tr><td><b>합계</b></td><td>${tot}</td><td class="n">${sum}</td><td>${Math.max(0, tot - sum)}</td><td>${sum >= tot ? '<span class="badge b-full">목표 도달</span>' : '<span class="badge b-mute">진행 중</span>'}</td></tr>`;
+    const ex = c.notElig + c.badAtt + c.bad160;
+    const fr = (lab, n, note) => `<tr><td>${lab}${note ? `<br><small>${note}</small>` : ''}</td><td class="n">${n}</td></tr>`;
+    $('ft').innerHTML = fr('누적 유입 <small>(동의하고 시작한 사람)</small>', all.length) +
+      fr('완료 인정 (001)', c.done, c.done !== sum ? `쿼터 숫자(${sum})와 차이 — 방금 끝난 사람 확인 중이거나 연구팀 확인 필요` : '') +
+      fr('제외 (003)', ex, `대상 아님 ${c.notElig} · 불성실: 3번 주의 점검 오답 ${c.badAtt} · 160초 미만 ${c.bad160}`) +
+      fr('초과 (002)', c.over, '성별 목표가 찬 뒤 첫 화면에서 돌려보냄') +
+      fr('지금 응답 중 <small>(30분 안에 움직임)</small>', c.active) +
+      fr('중간 이탈 <small>(30분 넘게 멈춤)</small>', c.dropped) +
+      (c.checking ? fr('끝난 기록 확인 중', c.checking) : '');
+    $('today').textContent = `한국 시간 ${td.slice(5).replace('-', '/')}`;
+    $('tt').innerHTML = fr('오늘 유입', tc.in) + fr('오늘 완료 인정 (001)', tc.done);
+    lastAt = Date.now(); upd();
+  }
+  function upd() { $('upd').innerHTML = (conn === false ? '<span class="err">연결 끊김 · 다시 잇는 중</span> · ' : '') + (lastAt ? `마지막 갱신 ${hms(lastAt)}` : '불러오는 중…'); }
+  const fail = e => { $('upd').innerHTML = `<span class="err">읽기 실패 — 새로 고침해 주세요 (${esc(e && e.code || e)})</span>`; };
+  db.ref('.info/connected').on('value', s => { conn = !!s.val(); upd(); });
+  db.ref('meta/ops').on('value', s => { ops = s.val() || {}; loaded.ops = true; render(); }, fail);
+  db.ref('meta/quota').on('value', s => { quota = s.val() || {}; loaded.quota = true; render(); }, fail);
+  db.ref('live').orderByKey().startAt('M').endAt('M\uf8ff').on('value', s => { live = s.val() || {}; loaded.live = true; fetchAct(); render(); }, fail);
+  setInterval(render, 30000);
+})();
+</script>
+</body>
+</html>

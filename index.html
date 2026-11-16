@@ -32,6 +32,10 @@
          — 수집 마감은 11/23 24:00 그대로(사전등록 ⑦ · 분석 코드 · 연구자 화면 종료 규칙 · 잠금) · 기간을 늘려도 이 파일은 안 고쳐도 되게 · 문항 · 저장 열 · STUDY_VERSION 그대로
        · ⑬ 엠브레인 돌아가는 주소(11/16 업체 회신): survey.panel.co.kr/Foreign/nPanelSupply_End.asp?Alias=4817224229&cid=(패널 ID)&status= 완료 001 · 조사 초과 002 · 조사 제외 003
          — 스크리닝 탈락(나이 · 구매 0회)과 불성실(3번 오답 · 160초 미만)은 둘 다 003 · 초과 002는 모집 마감본에서만 · 업체 링크(?src=agency)에 패널 ID가 있을 때만 이동 · 미리보기(?dev=1)는 늘 001 · 문항 · 저장 열 · STUDY_VERSION 그대로
+       · ⑭ 성별 쿼터(11/16 엠브레인 회신 · 팀 결정): 성별(W10 27번 · 열 Q1)을 마무리 화면 → 첫 화면(나이 · 구매 · 3번과 같은 화면)으로 · 선택지 남/여('응답하지 않음' 뺌)
+         — 업체 링크(?src=agency · 패널 ID 있음)만: 그 성별 완료 수가 목표 이상이면 첫 화면에서 초과 002 · 완료(001)로 보낸 사람만 meta/quota/M · F에 + 1(불성실 003 · 미리보기 · 리허설 · 본 설문 시작 전은 안 셈)
+         — 목표: 연구자 화면 '전체 배포 시작 시각' 전 = 소프트 런치 남 16 · 여 16 → 그 뒤 남 90 · 여 90(meta/ops.quota가 있으면 그 숫자) · 못 읽으면 막지 않음 · 미리보기 ?dev=1&quota=full이면 002 확인
+         — CSV 열 이름 · 자리는 그대로(374열 · Q1은 마무리 칸 자리) · STUDY_VERSION 그대로 · 쿼터 초과로 끝난 사람은 '이미 참여' 표시를 안 남김(목표가 늘면 다시 들어올 수 있게)
        · ① 파일럿 링크 마감(PILOT_CLOSED) — ?pilot=1(인지 · 사전 · 미니 · 실제 진행)은 '모집이 끝났어요' · 리허설(src=rehearsal) · 미리보기(?dev=1) · 본 설문 링크는 그대로
        · ② 연결 리허설 링크(?pilot=1&src=rehearsal)는 '1회 참여' 막기에서 제외(ONE_TIME) — 같은 브라우저에서 32회 자동 리허설
        · ③ 파일럿 · 미니 배정 코드(MINI_ARMS · PILOT_BALANCE) — ①로 링크가 닫혀 있어 실제로는 안 쓰임 · ④ D66 남은 한 자리(미리보기 건너뛰기 경로의 t_submit도 1회차만)
@@ -1542,6 +1546,7 @@ const CONFIG = {
     RETURN: { complete: 'https://survey.panel.co.kr/Foreign/nPanelSupply_End.asp?Alias=4817224229&cid={pid}&status=001', screen: 'https://survey.panel.co.kr/Foreign/nPanelSupply_End.asp?Alias=4817224229&cid={pid}&status=003', quota: 'https://survey.panel.co.kr/Foreign/nPanelSupply_End.asp?Alias=4817224229&cid={pid}&status=002', bad: 'https://survey.panel.co.kr/Foreign/nPanelSupply_End.asp?Alias=4817224229&cid={pid}&status=003' },   // 배포본 ⑬(11/16 엠브레인 회신): 완료 001 · 초과 002 · 제외 003(스크리닝 탈락 · 불성실 둘 다) · 엠브레인 주소의 cid=[IDnumber] 자리 = {pid}(받은 패널 ID) — 엠브레인 돌아가는 주소 — 받으면 여기에만 넣기(비어 있으면 이동 안 함) · 주소에 {pid}가 있으면 그 자리에, 없으면 끝에 pid=값을 붙임
     FAST_BAD_SEC: 160,          // 끝냈을 때 (전체 − 화면 이탈) 시간이 이 초 미만이면 완료 대신 '불성실' 주소로(사전등록 160초 · 0이면 안 함 · 미리보기는 안 봄)
     AUTO_SEC: 15,               // 끝 화면에서 자동으로 이동하기까지 초(0이면 단추만)
+    QUOTA: { ON: true, SOFT: { M: 16, F: 16 }, MAIN: { M: 90, F: 90 } },   // 배포본 ⑭: 성별 쿼터 — 소프트 런치('전체 배포 시작 시각' 전) 16 · 16 → 그 뒤 90 · 90 · meta/ops.quota {soft:{M,F}, main:{M,F}}가 있으면 그 숫자 · ON false면 안 막음
   },
   DEV_SAFE_PID: true,           // 배포본 ⑩(11/16): 미리보기(?dev=1) 번호를 T + 7자로 — 예전엔 브라우저마다 R001부터라 같은 번호의 예전 기록을 덮어씀 · false면 예전
   PILOT_BALANCE: true,          // V22_FB_30(11/8 허준영): 파일럿 링크는 시점 × 반복 네 묶음을 번갈아 채우고 그 시점의 8칸 중 적게 쓰인 칸으로(meta/pilotAssign · 본 설문 칸 수는 안 올림). false면 예전처럼 16칸 배정 + ?retry=auto 로만 균형
@@ -1765,7 +1770,7 @@ const AIUSE = {code:'Q4', text:'나는 쇼핑앱의 AI 추천을 자주 쓴다',
 const BLOCKS = {
   // v20: 상품관여도 3 → 1문항(Q5만), 인구통계 · AI 이용 빈도와 함께 맨 끝 '마무리' 화면으로(자극 뒤 · 기술 통계 · 민감도). Q6 · Q7 삭제
   END:{ask:'마지막으로 나에 대해 몇 가지만 알려 주세요.', items:[
-    {code:'Q1', text:'성별', opts:[['남','남'],['여','여'],['응답하지 않음','응답하지 않음']], v:'DEM'},
+    {code:'Q1', text:'성별', opts:[['남','남'],['여','여']], v:'DEM', first:'자극 전 · 첫 화면(스크리닝) · 성별 쿼터 (W10 27번 · 배포본 ⑭ · 열 자리는 마무리 칸 그대로)'},   // 배포본 ⑭: 첫 화면에서 물음 · 남/여('응답하지 않음' 뺌) · 마무리 화면에는 안 나옴
     {code:'Q4', text:'나는 쇼핑앱의 AI 추천을 자주 쓴다', v:'AIUSE'},
     {code:'Q5', text:'나에게 옷(의류)은', l:'중요하지 않다', r:'중요하다', v:'PII'}]},
   XSKEP:{extra:true, items:[
@@ -1869,6 +1874,25 @@ async function panelGo(kind, ms){   // 주소가 비어 있으면 아무것도 �
   try{ if (S && S.assigned && !S.submitted && fbReady()) await fbWait(Promise.all([fbdb.ref('participants/' + S.pid).set(fbSession()), fbdb.ref('live/' + S.pid).set(fbLive())]), 4000); }catch(e){}
   setTimeout(() => { try{ location.replace(url); }catch(e){ location.href = url; } }, ms == null ? 1500 : ms);
   return true;
+}
+/* 배포본 ⑭: 성별 쿼터 — meta/quota/M · F = 엠브레인에 완료(001)로 보낸 사람 수(성별) · 목표는 meta/ops.fullStart(전체 배포 시작) 전후로 */
+let quotaOps = null;
+async function quotaOpsGet(){ if (quotaOps) return quotaOps; try{ const sn = await fbWait(fbdb.ref('meta/ops').once('value'), 4000); quotaOps = (sn && sn.val && sn.val()) || {}; }catch(e){ quotaOps = {}; } return quotaOps; }
+function quotaG(){ const v = ans('Q1'); return v === '남' ? 'M' : v === '여' ? 'F' : ''; }
+function quotaTarget(ops){ const Q = CONFIG.PANEL.QUOTA, o = (ops && ops.quota) || {}, main = !!(ops && ops.fullStart && Date.now() >= Date.parse(ops.fullStart)), d = main ? Q.MAIN : Q.SOFT, ov = (main ? o.main : o.soft) || {};
+  return { phase: main ? 'main' : 'soft', M: ov.M != null ? Number(ov.M) : d.M, F: ov.F != null ? Number(ov.F) : d.F }; }
+function quotaWanted(){ const Q = (CONFIG.PANEL || {}).QUOTA; return !!(Q && Q.ON && panelMode() && S && S.panelId && quotaG() && (DEV || fbReady())); }
+async function quotaFull(){   // true = 그 성별 완료 수가 목표 이상 · 못 읽으면 false(막지 않음)
+  const g = quotaG(); if (!g) return false;
+  if (DEV) return QS.get('quota') === 'full';   // 미리보기: ?dev=1&quota=full이면 다 찬 것처럼(초과 002 확인용)
+  try{ const ops = await quotaOpsGet(), t = quotaTarget(ops), sn = await fbWait(fbdb.ref('meta/quota/' + g).once('value'), 4000); if (!sn) return false;
+    const n = Number(sn.val && sn.val()) || 0; S.quotaSeen = { g, n, target: t[g], phase: t.phase, at: new Date().toISOString() }; log('quota_check', S.quotaSeen); return n >= t[g]; }catch(e){ return false; }
+}
+async function quotaCount(){   // 완료(001)로 보낼 사람만 그 성별 + 1 — 불성실(160초 미만) · 미리보기 · 본 설문 시작 전은 안 셈
+  if (!quotaWanted() || DEV || S.quotaCounted) return;
+  const P = CONFIG.PANEL; if (P.FAST_BAD_SEC > 0 && S.activeSec != null && S.activeSec < P.FAST_BAD_SEC) return;
+  const g = quotaG(), ops = await quotaOpsGet(); if (ops.mainStart && Date.parse(S.startedAt) < Date.parse(ops.mainStart)) return;
+  try{ const r = await fbWait(fbdb.ref('meta/quota/' + g).transaction(c => (c || 0) + 1), 6000); if (r && r.committed){ S.quotaCounted = g; save(); } }catch(e){}
 }
 function panelNote(){ const ins = document.querySelectorAll('.block .in'); const n = ins[ins.length - 1]; if (n) n.insertAdjacentHTML('beforeend', '<p class="muted" style="margin-top:14px">잠시 후 엠브레인 화면으로 돌아가요.</p>'); }   // V22_FB_30: 연결 리허설 링크(?pilot=1&src=rehearsal)는 같은 브라우저에서 32회 돌려야 해서 '한 번만' 막기 제외 · 그 밖에는 CONFIG.ONE_TIME_ONLY 그대로
 function pidStart(){ return PILOT ? Math.max(901, CONFIG.PID_START) : (CONFIG.MAIN_PREFIX && isPilot2()) ? CONFIG.PILOT2_START : CONFIG.PID_START; }   // 배포본 ⑦: PILOT2_START > 0일 때만 파일럿 ② M(지금 0 → R)
@@ -2804,7 +2828,7 @@ const DISP_NO = {Q2:1,Q3:2,ATT0:3,Q11:4,Q12:5,Q13:6,Q14:7,Q15:8,Q16:9,Q17:10,Q18
 function qNo(code){ const n = DISP_NO[code]; return n ? `<span class="qn">${n}</span>` : ''; }
 function scaleItems(st){
   const b = BLOCKS[st.block];
-  let items = b.items.slice();
+  let items = b.items.filter(i => !i.first);   // 배포본 ⑭: 첫 화면에서 물은 문항(성별)은 마무리 화면에서 뺌
   if (st.extra) items.push(...[].concat(st.extra));   // v22: 여러 개 가능
   if (!S.orders[st.id]){
     S.orders[st.id] = items.map(i => i.code).sort((a, b) => qNum(a) - qNum(b));   // A11 번호 순서(무작위 없음)
@@ -3125,7 +3149,8 @@ function renderRight(){
     case 'demo': {
       const age = ans('Q2');
       const hb = (code, list) => list.map(o => `<button class="opt ${ans(code)===o?'on':''}" data-act="opt" data-code="${code}" data-v="${o}"><span class="rd"></span>${o}</button>`).join('');
-      pbody.innerHTML = `<h2 class="pt">먼저 세 가지만 여쭤볼게요</h2>
+      pbody.innerHTML = `<h2 class="pt">먼저 네 가지만 여쭤볼게요</h2>
+        <div class="q"><div class="qt">성별</div><div class="hopts">${hb('Q1',['남','여'])}</div></div>
         <div class="q"><div class="qt">${qNo('Q2')}나이(만)</div><div class="field"><input type="number" id="age" min="10" max="99" inputmode="numeric" value="${age!=null?age:''}"><span>세</span></div><div class="err" id="ageErr" style="display:none">만 나이를 숫자로 적어 주세요.</div></div>
         <div class="q"><div class="qt">${qNo('Q3')}최근 3개월 동안 온라인으로 옷을 산 횟수</div><div class="hopts">${hb('Q3',['0회','1~2회','3~5회','6회 이상'])}</div></div>
         ${CONFIG.ATT0_ON ? `<div class="q"><div class="qt">${qNo('ATT0')}${esc(ATT0.text)}</div><div class="lk">${[1,2,3,4,5,6,7].map(n => `<button class="${ans('ATT0')===n?'on':''}" data-act="lk" data-code="ATT0" data-v="${n}">${n}</button>`).join('')}</div><div class="anch"><span>전혀 그렇지 않다</span><span>매우 그렇다</span></div></div>` : ''}`;
@@ -3187,7 +3212,7 @@ function renderTaskPanel(st){
   pbody.innerHTML = `<div class="task-card" style="margin-top:0"><div class="tk">${st.task === 1 ? '첫 번째' : '두 번째'} 쇼핑 · 지금 할 일</div><div class="tx" id="taskNow">${esc(TASK_STEPS[k].text).replace(/\[([^\]]+)\]/g, '<b>[$1]</b>')}</div></div>
     ${taskStepsHTML(k)}<p class="muted" style="margin-top:14px">왼쪽 앱 화면을 직접 눌러 보세요.</p>`;
 }
-function demoOk(){ return ans('Q2') != null && ans('Q3') != null && (!CONFIG.ATT0_ON || ans('ATT0') != null); }   // v20: 자극 전 = 나이 · 옷 구매 빈도 · 주의 점검 T0
+function demoOk(){ return ans('Q1') != null && ans('Q2') != null && ans('Q3') != null && (!CONFIG.ATT0_ON || ans('ATT0') != null); }   // v20: 자극 전 = 나이 · 옷 구매 빈도 · 주의 점검 T0
 /* 마지막 화면 = 디브리핑(5.7 문안). 제출을 마친 뒤 보여요 */
 function panelEndInfo(){   // 배포본 ⑨: 끝 화면 단추 — 160초 미만이면 '불성실' 주소, 아니면 '완료' 주소(미리보기는 늘 완료)
   if (!panelMode() || !S || !S.panelId) return null;
@@ -3241,7 +3266,7 @@ function onPanelClick(e){
     setNextEnabled(ok); save(); return;
   }
   if (act === 'prev'){ if (canGoBack()){ log('q_back', {from:curStep().id, to:steps[S.stepIdx - 1].id}); goPrev(); } return; }
-  if (act === 'next'){ if (st.kind === 'demo'){ const why = screenReason(); if (why){ screenOut(why); return; } } goNext(); return; }
+  if (act === 'next'){ if (st.kind === 'demo'){ const why = screenReason(); if (why){ screenOut(why); return; } if (quotaWanted()){ setNextEnabled(false); quotaFull().then(full => { if (full) screenOut('quota'); else goNext(); }); return; } } goNext(); return; }   // 배포본 ⑭: 그 성별이 차면 초과 002
   if (act === 'consent'){ doConsent(); return; }
   if (act === 'phone-next'){ doPhone(); return; }
   if (act === 'phone-skip'){ S.consent.phone = false; S.consent.phoneWithdrawnAt = new Date().toISOString(); log('phone', {ok:false, skipped:true}); skipPhone(); return; }
@@ -3466,6 +3491,7 @@ function screenReason(){
   return '';
 }
 function screenMsg(why){
+  if (why === 'quota') return '지금은 이 조사의 목표 인원이 다 차서 참여가 끝났어요.';   // 배포본 ⑭
   if (why === 'shop') return '이 연구는 최근 3개월 동안 온라인으로 옷을 산 적이 있는 분만 참여할 수 있어요.';
   if (why === 'age' || why === 'age_over') return CONFIG.MAX_AGE ? `이 연구는 만 ${CONFIG.MIN_AGE}–${CONFIG.MAX_AGE}세만 참여할 수 있어요.` : `이 연구는 만 ${CONFIG.MIN_AGE}세 이상 성인만 참여할 수 있어요.`;
   return '이 연구의 참여 조건에 해당하지 않아 참여가 끝났어요.';
@@ -3473,9 +3499,9 @@ function screenMsg(why){
 function screenOut(why){
   log('screen_out', {reason:why, age:ans('Q2'), shop:ans('Q3'), att:ans('ATT0')});
   S.status = 'screened_out'; S.screenReason = why; delete S.phone; S.done = true; save();
-  if (!DEV && ONE_TIME) markDone({pid:S.pid, at:new Date().toISOString(), screened:true, reason:why, panelId:S.panelId || ''});
+  if (!DEV && ONE_TIME && why !== 'quota') markDone({pid:S.pid, at:new Date().toISOString(), screened:true, reason:why, panelId:S.panelId || ''});
   blockScreen(`<h2 class="pt">참여해 주셔서 감사합니다</h2><p class="lead">${screenMsg(why)} ${CONFIG.PHONE_ON ? '적어 주신 번호와 ' : ''}응답은 저장하지 않았어요.</p>`);
-  if (panelMode() && S.panelId && panelReturnUrl(why === 'att' ? 'bad' : 'screen')){ panelNote(); panelGo(why === 'att' ? 'bad' : 'screen', 2500); }   // 배포본 ⑨: 3번 주의 점검 오답 = 불성실 · 나이 · 구매 0회 = 스크리닝 탈락
+  { const k = why === 'att' ? 'bad' : why === 'quota' ? 'quota' : 'screen'; if (panelMode() && S.panelId && panelReturnUrl(k)){ panelNote(); panelGo(k, 2500); } }   // 배포본 ⑭: 쿼터 초과 = 002   // 배포본 ⑨: 3번 주의 점검 오답 = 불성실 · 나이 · 구매 0회 = 스크리닝 탈락
 }
 /* 중복 참여 막기: 끝난 표시를 localStorage와 쿠키 두 곳에 남기고, 둘 중 하나라도 있으면 막아요 */
 const DONE_COOKIE = 'sbcx_done';
@@ -3536,7 +3562,7 @@ function questionList(){
     it.opts ? `${it.text} — ${it.opts.map(o => o[0] + '=' + o[1]).join(' / ')}`
       : it.text ? (it.l ? `${it.text} (1=${it.l}, 7=${it.r})` : it.text) : `${BLOCKS[b].ask} (1=${it.l}, 7=${it.r})`,
     {stage, rev:it.rev, att:it.att, base:it.code});
-  const blk = (b, p, stage) => BLOCKS[b].items.forEach(it => it2(b, it, p, stage));
+  const blk = (b, p, stage) => BLOCKS[b].items.forEach(it => it2(b, it, p, it.first || stage));   // 배포본 ⑭: 성별은 첫 화면(열 자리는 그대로)
   const mc = (m, code, stage) => add(code, m.v, `${m.q} — ${m.opts.map(o => o[0] + '=' + plainOpt(o[1]) + (o[2] ? ' (' + o[2] + ')' : '')).join(' / ')}`, {stage, base:m.code});
   add('Q2', '인구통계', '나이(만)', {stage:'자극 전 · 스크리닝 (W10 1번)', base:'Q2'});
   add('Q3', '이용 빈도', '최근 3개월 동안 온라인으로 옷을 산 횟수 (0회 / 1~2회 / 3~5회 / 6회 이상)', {stage:'자극 전 · 스크리닝 (W10 2번)', base:'Q3'});
@@ -3871,6 +3897,7 @@ async function doSubmit(){
   await post('logs', S.log.map(e => ({pid:S.pid, t_ms:e.t, step:e.step, type:e.type, detail:JSON.stringify(e.d)})));
   if (phone) await post('lottery', [lot]);   // 번호는 응답과 다른 시트에만
   await fbSubmit(row, lot);
+  await quotaCount();   // 배포본 ⑭: 완료(001)로 갈 사람만 성별 쿼터 + 1
   try{ if (window.parent !== window) window.parent.postMessage({type:'SBCX_COMPLETE', row}, '*'); }catch(e){}
   S.submitted = true;
   if (!DEV && ONE_TIME) markDone({pid:S.pid, at:S.finishedAt, panelId:S.panelId || ''});
@@ -3934,7 +3961,7 @@ function devSkip(silent){
   const advance = () => { if (silent){ S.stepIdx++; stepT0 = now(); } else goNext(); };
   switch (st.kind){
     case 'consent': S._ck = {a:true,b:true,c:CONFIG.PHONE_ON}; S.consent = {participate:true,data:true,phone:CONFIG.PHONE_ON,at:new Date().toISOString(),version:CONFIG.CONSENT_VERSION}; S.assigned = true; advance(); break;
-    case 'demo': S.answers.Q2 = {v:24,rt:0,at:elapsed()}; S.answers.Q3 = {v:'1~2회',rt:0,at:elapsed()}; if (CONFIG.ATT0_ON) S.answers.ATT0 = {v:ATT0.att,rt:0,at:elapsed()}; advance(); break;   // V22_FB: v22 자극 전 화면(나이 · 구매 빈도 · 주의 점검 3번)에 맞춤 — 성별(Q1) · AI 이용(Q4)은 마무리 화면에서 채움 (미리보기 전용)
+    case 'demo': S.answers.Q1 = {v:Math.random() < .5 ? '남' : '여',rt:0,at:elapsed()}; S.answers.Q2 = {v:24,rt:0,at:elapsed()}; S.answers.Q3 = {v:'1~2회',rt:0,at:elapsed()}; if (CONFIG.ATT0_ON) S.answers.ATT0 = {v:ATT0.att,rt:0,at:elapsed()}; advance(); break;   // V22_FB: v22 자극 전 화면(나이 · 구매 빈도 · 주의 점검 3번)에 맞춤 — 성별(Q1) · AI 이용(Q4)은 마무리 화면에서 채움 (미리보기 전용)
     case 'scale': scaleItems(st).forEach(it => { S.answers[itCode(st, it)] = {v: it.opts ? it.opts[0][0] : (it.att || rnd()), rt:0, at:elapsed()}; }); advance(); break;
     case 'mc': { const t = st.task ? T(st.task) : null; const val = {Q28:t && t.type, Q29:S.cond.X2==='사전'?'pre':'post', Q32:Math.random() < .5 ? 'D' : 'A'}; mcItems(st).forEach(m => { S.answers[mcCode(st, m)] = {v:val[m.code],rt:0,at:elapsed()}; }); advance(); break; }
     case 'phone': if (CONFIG.PHONE_ON){ S.phone = '01000000000'; S.phoneHash = phoneHash(S.phone); } S.assigned = true; advance(); break;
