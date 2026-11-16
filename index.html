@@ -36,6 +36,9 @@
          — 업체 링크(?src=agency · 패널 ID 있음)만: 그 성별 완료 수가 목표 이상이면 첫 화면에서 초과 002 · 완료(001)로 보낸 사람만 meta/quota/M · F에 + 1(불성실 003 · 미리보기 · 리허설 · 본 설문 시작 전은 안 셈)
          — 목표: 연구자 화면 '전체 배포 시작 시각' 전 = 소프트 런치 남 16 · 여 16 → 그 뒤 남 90 · 여 90(meta/ops.quota가 있으면 그 숫자) · 못 읽으면 막지 않음 · 미리보기 ?dev=1&quota=full이면 002 확인
          — CSV 열 이름 · 자리는 그대로(374열 · Q1은 마무리 칸 자리) · STUDY_VERSION 그대로 · 쿼터 초과로 끝난 사람은 '이미 참여' 표시를 안 남김(목표가 늘면 다시 들어올 수 있게)
+       · ⑮ 구글 시트 이중 저장(11/16 팀 결정 · D129): 끝낼 때 Firebase(본 저장)에 먼저 쓰고, 그다음 같은 응답을 구글 시트(Apps Script 웹 앱 · CONFIG.SERVER_URL)로 한 번 더 보냄
+         — 한 번에 묶어서(bundle): 응답 1줄(responses 시트 · Firebase CSV와 같은 열) + 행동 기록(logs 시트) + 전체 기록 JSON(드라이브 'SBCX_2조_응답JSON' 폴더 · 1명 1파일) · 최대 6초만 기다리고 넘어감(늦거나 실패해도 Firebase 저장 · 엠브레인 이동은 그대로)
+         — 참여 번호 · 칸 배정은 Firebase만(SERVER_ASSIGN false · 예전 Apps Script 배정 안 씀) · 미리보기 · 리허설도 Firebase와 똑같이 시트에 들어감(dev · src 열로 구분) · 문항 · 저장 열 · STUDY_VERSION 그대로
        · ① 파일럿 링크 마감(PILOT_CLOSED) — ?pilot=1(인지 · 사전 · 미니 · 실제 진행)은 '모집이 끝났어요' · 리허설(src=rehearsal) · 미리보기(?dev=1) · 본 설문 링크는 그대로
        · ② 연결 리허설 링크(?pilot=1&src=rehearsal)는 '1회 참여' 막기에서 제외(ONE_TIME) — 같은 브라우저에서 32회 자동 리허설
        · ③ 파일럿 · 미니 배정 코드(MINI_ARMS · PILOT_BALANCE) — ①로 링크가 닫혀 있어 실제로는 안 쓰임 · ④ D66 남은 한 자리(미리보기 건너뛰기 경로의 t_submit도 1회차만)
@@ -405,6 +408,7 @@
 
   응답 저장
     CONFIG.SERVER_URL 이 비어 있으면 응답은 이 브라우저(localStorage)에만 남습니다. 확인할 때는 ?dev=1 로 열어 내려받으세요.
+    (배포본 ⑮ · 11/16: 지금은 아래 예전 코드가 아니라 '구글시트_이중저장_AppsScript.txt'를 씀 — doPost 묶음(responses · logs · 드라이브 JSON) · doGet은 저장 수 확인만 · 참여 번호 · 칸 배정은 Firebase만)
     본 조사 전에는 아래 Google Apps Script를 스프레드시트에 붙여 웹 앱으로 배포하고 그 주소를 SERVER_URL에 넣으세요.
     같은 주소가 참가자 순번·16칸 균형 배정(doGet)과 응답 저장(doPost)을 함께 맡습니다.
 
@@ -1531,7 +1535,8 @@ const CONFIG = {
   CLUX_STAGE_NAMES: false,      // true면 위쪽 단계 이름을 CLUX 원래 이름(리서치 해석·문제 정의·아이데이션·문서화)으로 표시
   CONSENT_VERSION: 'consent-v4',   // v4(V22_FB_22): 번호 수집 줄 · 보상 안내 없음(PHONE_ON true로 되돌리면 'consent-v3'로) · v3: 번호 수집 [선택](보상 추첨용), 중복 참여 확인 문구 뺌
   PHONE_ON: false,              // V22_FB_22(11/8 아영 님): 휴대전화 번호 · 보상 추첨 안내 없음. true = 예전처럼 [선택] 동의자에게 번호 받기 + 추첨 안내
-  SERVER_URL: '',               // Google Apps Script 웹 앱 주소. 비우면 이 브라우저에만 저장
+  SERVER_URL: 'https://script.google.com/macros/s/AKfycbz4V1CNRYqBzDnqsoCXQiAwsCGvYJf8i9sPbSYO2Wx1gIUvPti20atfg6PdgGZFSGwl/exec',   // 배포본 ⑮: 구글 시트 이중 저장(Apps Script 웹 앱 · 11/16) — Firebase에 먼저 쓰고 그다음 여기로 한 번 더 · 비우면 시트 저장 안 함
+  SERVER_ASSIGN: false,         // 배포본 ⑮: 참여 번호 · 칸 배정은 Firebase만(Firebase가 안 돼도 Apps Script로 배정하지 않음 · 번호 겹침 방지)
   FIREBASE: {                   // 연구자 화면이 읽는 Firebase 실시간 DB. databaseURL을 비우면 Firebase 저장 안 함
     apiKey: 'AIzaSyBn2U9ttAK7YB1s_uNAidPHn8B6M6CigZA', projectId: 'moa-t2-study', appId: '1:820807917036:web:c77c2761d3624e1dc1b4c9',
     databaseURL: 'https://moa-t2-study-default-rtdb.asia-southeast1.firebasedatabase.app' },
@@ -1973,8 +1978,8 @@ async function restartAll(){
       log('restart', {at:S.stepIdx});
       const row = buildRow();
       const recs = load(KEY_RECORDS) || []; recs.push(exportJSON()); store(KEY_RECORDS, recs);
+      await fbWait(fbRestart(row), 1500);   // 배포본 ⑮: Firebase 먼저
       await Promise.race([post('responses', [row]), new Promise(r => setTimeout(r, 1500))]);
-      await fbWait(fbRestart(row), 1500);
     }
     if (S && S.assigned) store(KEY_RESTART, S.pid);   // 참여 번호가 확정된 뒤에만 앞 기록으로 잇는다 (확정 전 임시 번호가 새 번호와 겹치지 않게)
   }catch(err){}
@@ -3532,7 +3537,7 @@ async function assign(){
       if (r.pilotArm){ S.pilotArm = r.pilotArm; if (r.retryOn != null && !S.retryAuto){ S.retryAuto = {on:r.retryOn, source:'firebase-pilot', x2: S.cond.X2 === '사전' ? 'pre' : 'post', arm:r.pilotArm}; applyRetry(); } log('pilot_assign', {arm:r.pilotArm, cell:S.cond.cell, retryOn:CONFIG.RETRY_ON ? 1 : 0}); } }   // V22_FB_30
     else if (!u) S.assignSource = 'random(firebase-fail)';
   }
-  if (!fbDone && CONFIG.SERVER_URL && !DEV){
+  if (!fbDone && CONFIG.SERVER_URL && CONFIG.SERVER_ASSIGN && !DEV){   // 배포본 ⑮: 배정은 Firebase만
     try{
       const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 5000);
       const q = '?pre=' + encodeURIComponent(pidPre()) + '&start=' + CONFIG.PID_START + (urlPid() ? '&pid=' + encodeURIComponent(S.pid) : '') + (u ? '&cell=' + u.cond.cell : '');
@@ -3880,8 +3885,16 @@ async function fbSubmit(row, lot){
 }
 async function post(sheet, rows){
   if (!CONFIG.SERVER_URL) return;
-  try{ await fetch(CONFIG.SERVER_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify({sheet, rows})}); }
+  try{ const body = JSON.stringify({sheet, rows}); const ka = new Blob([body]).size < 60000;   // 배포본 ⑮: 작으면 keepalive(엠브레인으로 넘어가거나 창을 닫아도 끝까지 보냄 · 64KB 한도)
+    await fetch(CONFIG.SERVER_URL, {method:'POST', mode:'no-cors', keepalive: ka, headers:{'Content-Type':'text/plain;charset=utf-8'}, body}); }
   catch(e){ log('post_fail', {sheet, err:String(e)}); }
+}
+async function sheetSave(row, lot){   // 배포본 ⑮: 구글 시트 이중 저장 — 응답 1줄 · 행동 기록 · 전체 기록(JSON → 드라이브)을 한 번에 · 6초가 지나면 기다리지 않고 넘어감(보내기는 계속)
+  if (!CONFIG.SERVER_URL) return;
+  let b = null;
+  try{ b = {responses:[row], logs:S.log.map(e => ({pid:S.pid, t_ms:e.t, step:e.step, stage:e.stage, type:e.type, detail:JSON.stringify(e.d)})), record:{pid:S.pid, json:JSON.stringify(exportJSON())}}; if (lot && lot.phone) b.lottery = [lot]; }
+  catch(e){ log('post_fail', {sheet:'bundle', err:String(e)}); return; }
+  await Promise.race([post('bundle', [b]), new Promise(r => setTimeout(r, 6000))]);
 }
 async function doSubmit(){
   const b = document.getElementById('nextBtn'); if (b){ b.disabled = true; b.textContent = '저장하는 중…'; }
@@ -3893,11 +3906,9 @@ async function doSubmit(){
   const recs = load(KEY_RECORDS) || []; recs.push(exportJSON()); store(KEY_RECORDS, recs);
   const lot = {pid:S.pid, phone, ph_hash:S.phoneHash || '', att_all_ok:row.att_all_ok, at:S.finishedAt};
   if (phone){ const l = load(KEY_LOTTERY) || []; l.push(lot); store(KEY_LOTTERY, l); }
-  await post('responses', [row]);
-  await post('logs', S.log.map(e => ({pid:S.pid, t_ms:e.t, step:e.step, type:e.type, detail:JSON.stringify(e.d)})));
-  if (phone) await post('lottery', [lot]);   // 번호는 응답과 다른 시트에만
-  await fbSubmit(row, lot);
+  await fbSubmit(row, lot);   // 배포본 ⑮: Firebase(본 저장) 먼저 — 구글 시트는 아래 sheetSave에서
   await quotaCount();   // 배포본 ⑭: 완료(001)로 갈 사람만 성별 쿼터 + 1
+  await sheetSave(row, lot);   // 배포본 ⑮: 그다음 구글 시트 · 드라이브(백업) — 최대 6초
   try{ if (window.parent !== window) window.parent.postMessage({type:'SBCX_COMPLETE', row}, '*'); }catch(e){}
   S.submitted = true;
   if (!DEV && ONE_TIME) markDone({pid:S.pid, at:S.finishedAt, panelId:S.panelId || ''});
@@ -4087,7 +4098,7 @@ function init(){
   } else {
     const u = urlCond();
     const W = W_LEVELS[Math.random()<.5?0:1], X2 = X2_LEVELS[Math.random()<.5?0:1], O = ORDERS[Math.random()<.5?0:1], SO = SET_ORDERS[Math.random()<.5?0:1];
-    S = u ? newSession(u.cond, u.source) : newSession(cellToCond(condToCell(W, X2, O, SO)), CONFIG.SERVER_URL ? 'pending' : 'random');
+    S = u ? newSession(u.cond, u.source) : newSession(cellToCond(condToCell(W, X2, O, SO)), (CONFIG.SERVER_URL && CONFIG.SERVER_ASSIGN) ? 'pending' : 'random');
     const rf = load(KEY_RESTART); if (rf){ S.restartOf = rf; try{ localStorage.removeItem(KEY_RESTART); }catch(e){} }
     if (DEV && RETRY_AUTO) assignRetry();   // 미리보기에서는 바로 무작위로
     buildSteps();
