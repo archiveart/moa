@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>SBCX 2조 설문 현황</title>
+<!-- 11/17 D132: 합계 '남은 수' = 남 · 여 남은 수의 합, '목표 도달'은 두 성별이 다 찼을 때만(한 성별이 목표보다 넘쳐도 다른 성별 남은 자리를 지우지 않게) · 넘친 수 표시 -->
 <!-- 11/17 D130: 끝낸 사람 판정에 live.status 'complete'도 씀(제출 직후 2초 자동 저장이 submitted를 false로 덮는 경우 · 설문 · 저장 · 쿼터는 그대로) -->
 <!-- 엠브레인 공유용 현황(11/16 허준영 · Claude) — 숫자만 · 읽기만(쓰기 없음) · 읽는 곳: meta/ops · meta/quota · live의 M 번호만(본 설문) · 완료 기록은 participants/{번호}/activeSec 한 칸만 -->
 <style>
@@ -62,6 +63,7 @@
     <li><b>완료 인정(001)</b> = 끝까지 응답 · 3번 주의 점검 통과 · 160초 이상. 엠브레인 '조사 완료'로 보낸 사람이고, 쿼터는 이 숫자로 셉니다.</li>
     <li><b>초과(002)</b> = 그 성별 목표가 찬 뒤 첫 화면에서 돌려보낸 사람. <b>제외(003)</b> = 대상 아님(만 19–39세 아님 · 최근 3개월 온라인 옷 구매 0회) 또는 불성실(3번 주의 점검 오답 · 160초 미만).</li>
     <li>성별은 설문 첫 화면에서 물어요(남/여). 소프트 런치 목표는 남 16 · 여 16(32명), 전체 배포를 시작하면 남 90 · 여 90(180명)으로 바뀌어요. 불성실로 빠진 만큼은 '남은 수'에 그대로 남아 더 받아야 해요.</li>
+    <li>같은 때 응답하던 사람이 함께 끝나면 목표보다 1–2명 많아질 수 있어요(첫 화면을 이미 지난 사람은 끝까지 받아요). 합계 '남은 수'는 남 · 여 남은 수를 더한 값이에요.</li>
     <li>미리보기(&amp;dev=1) · 본 설문 시작 전 테스트 기록은 세지 않아요.</li>
   </ul>
 </div>
@@ -107,12 +109,12 @@
     const t = target(), qM = Number(quota.M) || 0, qF = Number(quota.F) || 0;
     $('phase').textContent = (t.main ? '본 조사' : '소프트 런치') + ` · 목표 남 ${t.M} · 여 ${t.F}`;
     const qrow = (lab, goal, n) => { const left = Math.max(0, goal - n), full = n >= goal;
-      return `<tr><td><b>${lab}</b></td><td>${goal}</td><td class="n">${n}</td><td>${left}</td><td>${full ? '<span class="badge b-full">마감 · 초과 002로 보냄</span>' : '<span class="badge b-ok">모집 중</span>'}</td></tr>`; };
+      return `<tr><td><b>${lab}</b></td><td>${goal}</td><td class="n">${n}${n > goal ? ` <small>(목표 +${n - goal})</small>` : ''}</td><td>${left}</td><td>${full ? '<span class="badge b-full">마감 · 초과 002로 보냄</span>' : '<span class="badge b-ok">모집 중</span>'}</td></tr>`; };
     const all = rows(), c = { done: 0, bad160: 0, badAtt: 0, notElig: 0, over: 0, active: 0, dropped: 0, checking: 0 }, td = kst(Date.now()), tc = { in: 0, done: 0 };
     all.forEach(r => { const k = kindOf(r); c[k]++; if (kst(ts(r.startedAt)) === td) tc.in++; if (k === 'done' && kst(ts(r.at)) === td) tc.done++; });
-    const tot = t.M + t.F, sum = qM + qF;
+    const tot = t.M + t.F, sum = qM + qF, left = Math.max(0, t.M - qM) + Math.max(0, t.F - qF);   // 11/17 D132
     $('qt').innerHTML = qrow('남', t.M, qM) + qrow('여', t.F, qF) +
-      `<tr><td><b>합계</b></td><td>${tot}</td><td class="n">${sum}</td><td>${Math.max(0, tot - sum)}</td><td>${sum >= tot ? '<span class="badge b-full">목표 도달</span>' : '<span class="badge b-mute">진행 중</span>'}</td></tr>`;
+      `<tr><td><b>합계</b></td><td>${tot}</td><td class="n">${sum}</td><td>${left}</td><td>${left === 0 ? '<span class="badge b-full">목표 도달</span>' : '<span class="badge b-mute">진행 중</span>'}</td></tr>`;
     const ex = c.notElig + c.badAtt + c.bad160;
     const fr = (lab, n, note) => `<tr><td>${lab}${note ? `<br><small>${note}</small>` : ''}</td><td class="n">${n}</td></tr>`;
     $('ft').innerHTML = fr('누적 유입 <small>(동의하고 시작한 사람)</small>', all.length) +
