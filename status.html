@@ -22,6 +22,7 @@
   th, td { padding: 10px 6px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
   th:first-child, td:first-child { text-align: left; white-space: normal; }
   tr:last-child td { border-bottom: 0; }
+  #qt td:last-child { white-space: normal; }   /* 11/17 D132: 좁은 화면에서 상태 글자가 잘리지 않게 줄바꿈 */
   th { font-size: 12px; color: var(--ink2); font-weight: 600; }
   td.n { font-size: 18px; font-weight: 700; }
   td small, .dim { color: var(--ink3); font-size: 12px; font-weight: 500; }
@@ -109,7 +110,7 @@
     const t = target(), qM = Number(quota.M) || 0, qF = Number(quota.F) || 0;
     $('phase').textContent = (t.main ? '본 조사' : '소프트 런치') + ` · 목표 남 ${t.M} · 여 ${t.F}`;
     const qrow = (lab, goal, n) => { const left = Math.max(0, goal - n), full = n >= goal;
-      return `<tr><td><b>${lab}</b></td><td>${goal}</td><td class="n">${n}${n > goal ? ` <small>(목표 +${n - goal})</small>` : ''}</td><td>${left}</td><td>${full ? '<span class="badge b-full">마감 · 초과 002로 보냄</span>' : '<span class="badge b-ok">모집 중</span>'}</td></tr>`; };
+      return `<tr><td><b>${lab}</b></td><td>${goal}</td><td class="n">${n}${n > goal ? `<br><small>목표 +${n - goal}</small>` : ''}</td><td>${left}</td><td>${full ? '<span class="badge b-full">마감 · 초과 002로 보냄</span>' : '<span class="badge b-ok">모집 중</span>'}</td></tr>`; };
     const all = rows(), c = { done: 0, bad160: 0, badAtt: 0, notElig: 0, over: 0, active: 0, dropped: 0, checking: 0 }, td = kst(Date.now()), tc = { in: 0, done: 0 };
     all.forEach(r => { const k = kindOf(r); c[k]++; if (kst(ts(r.startedAt)) === td) tc.in++; if (k === 'done' && kst(ts(r.at)) === td) tc.done++; });
     const tot = t.M + t.F, sum = qM + qF, left = Math.max(0, t.M - qM) + Math.max(0, t.F - qF);   // 11/17 D132
