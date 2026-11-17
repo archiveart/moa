@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>SBCX 2조 설문 현황</title>
+<!-- 11/17 D130: 끝낸 사람 판정에 live.status 'complete'도 씀(제출 직후 2초 자동 저장이 submitted를 false로 덮는 경우 · 설문 · 저장 · 쿼터는 그대로) -->
 <!-- 엠브레인 공유용 현황(11/16 허준영 · Claude) — 숫자만 · 읽기만(쓰기 없음) · 읽는 곳: meta/ops · meta/quota · live의 M 번호만(본 설문) · 완료 기록은 participants/{번호}/activeSec 한 칸만 -->
 <style>
   :root { --ink:#0F172A; --ink2:#475569; --ink3:#94A3B8; --line:#E2E8F0; --bg:#F8FAFC; --card:#FFFFFF; --ok:#15803D; --okbg:#DCFCE7; --bad:#B91C1C; --badbg:#FEE2E2; --acc:#4338CA; --accbg:#EEF2FF; --mute:#F1F5F9; }
@@ -91,13 +92,14 @@
     const start = ts(ops.mainStart || MAIN_START);
     return Object.keys(live).map(k => Object.assign({ key: k }, live[k] || {})).filter(r => String(r.src || '').toLowerCase() === 'agency' && !Number(r.dev) && !Number(r.pilot) && ts(r.startedAt) >= start);
   }
+  const fin = r => !!r.submitted || r.status === 'complete';   // 11/17 D130
   function kindOf(r) {
-    if (r.submitted) { const a = act[r.key]; if (a === undefined || a === null) return 'checking'; return Number(a) < FAST ? 'bad160' : 'done'; }
+    if (fin(r)) { const a = act[r.key]; if (a === undefined || a === null) return 'checking'; return Number(a) < FAST ? 'bad160' : 'done'; }
     if (r.status === 'screened_out') { const w = r.screenReason || ''; return w === 'quota' ? 'over' : w === 'att' ? 'badAtt' : 'notElig'; }
     return Date.now() - ts(r.at) < STALE ? 'active' : 'dropped';
   }
   function fetchAct() {
-    Object.keys(live).forEach(k => { const r = live[k] || {}; if (!r.submitted || act[k] !== undefined) return; act[k] = null;
+    Object.keys(live).forEach(k => { const r = live[k] || {}; if (!fin(r) || act[k] !== undefined) return; act[k] = null;
       db.ref('participants/' + k + '/activeSec').once('value').then(s => { act[k] = s.val() == null ? FAST : s.val(); render(); }).catch(() => { delete act[k]; }); });
   }
   function render() {
