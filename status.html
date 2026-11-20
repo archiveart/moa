@@ -8,7 +8,7 @@
 <!-- 11/17 D132: 합계 '남은 수' = 남 · 여 남은 수의 합, '목표 도달'은 두 성별이 다 찼을 때만(한 성별이 목표보다 넘쳐도 다른 성별 남은 자리를 지우지 않게) · 넘친 수 표시 -->
 <!-- 11/20 (D136 · D138 · 배포본 ⑯): 24번 주의 점검 오답도 불성실 003 · 성별 × 나이 표(완료 인정) · 재검사 상한(32명) · 연령 쿼터 표시 · v22.57 live(valid · bad · sex · ageBand · ver) 우선, 예전 기록은 participants/{번호}/answers Q1 · Q2 · Q30 읽기만 -->
 <!-- 11/17 D130: 끝낸 사람 판정에 live.status 'complete'도 씀(제출 직후 2초 자동 저장이 submitted를 false로 덮는 경우 · 설문 · 저장 · 쿼터는 그대로) -->
-<!-- 엠브레인 공유용 현황(11/16 허준영 · Claude) — 숫자만 · 읽기만(쓰기 없음) · 읽는 곳: meta/ops · meta/quota · live의 M 번호만(본 설문) · 완료 기록은 participants/{번호}/activeSec 한 칸만 -->
+<!-- 엠브레인 공유용 현황(11/16 허준영 · Claude) — 숫자만 · 읽기만(쓰기 없음) · 읽는 곳: meta/ops · meta/quota · meta/assign2/leases(11/20 ⑰: 지금 하는 사람) · live의 M 번호만(본 설문) · 완료 기록은 participants/{번호}/activeSec 한 칸만 -->
 <style>
   :root { --ink:#0F172A; --ink2:#475569; --ink3:#94A3B8; --line:#E2E8F0; --bg:#F8FAFC; --card:#FFFFFF; --ok:#15803D; --okbg:#DCFCE7; --bad:#B91C1C; --badbg:#FEE2E2; --acc:#4338CA; --accbg:#EEF2FF; --mute:#F1F5F9; }
   * { box-sizing: border-box; }
@@ -89,7 +89,7 @@
   const ts = v => { const t = Date.parse(v || ''); return isNaN(t) ? 0 : t; };
   const kst = t => new Date(t + 9 * 3600000).toISOString().slice(0, 10);
   const hms = t => new Date(t + 9 * 3600000).toISOString().slice(11, 19);
-  let ops = {}, quota = {}, live = {}, act = {}, ext = {}, conn = null, loaded = { ops: false, quota: false, live: false }, lastAt = 0;
+  let ops = {}, quota = {}, live = {}, act = {}, ext = {}, leases = {}, conn = null, loaded = { ops: false, quota: false, live: false }, lastAt = 0;
 
   if (typeof firebase === 'undefined') { $('upd').innerHTML = '<span class="err">연결 도구를 못 불러왔어요 — 새로 고침해 주세요</span>'; return; }
   firebase.initializeApp(CFG); const db = firebase.database();
@@ -121,12 +121,13 @@
     if (!(loaded.ops && loaded.quota && loaded.live)) return;
     const t = target(), qM = Number(quota.M) || 0, qF = Number(quota.F) || 0;
     $('phase').textContent = (t.main ? '본 조사' : '소프트 런치') + ` · 목표 남 ${t.M} · 여 ${t.F}`;
-    const qrow = (lab, goal, n) => { const left = Math.max(0, goal - n), full = n >= goal;
-      return `<tr><td><b>${lab}</b></td><td>${goal}</td><td class="n">${n}${n > goal ? `<br><small>목표 +${n - goal}</small>` : ''}</td><td>${left}</td><td>${full ? '<span class="badge b-full">마감 · 초과 002로 보냄</span>' : '<span class="badge b-ok">모집 중</span>'}</td></tr>`; };
+    const now2 = Date.now(), act2 = { M: 0, F: 0 }; Object.values(leases || {}).forEach(l => { if (l && act2[l.g] != null && now2 - (+l.t || 0) <= 30 * 60000) act2[l.g]++; });   // 11/20 ⑰: 지금 하는 사람(30분 안)
+    const qrow = (lab, goal, n, a) => { const left = Math.max(0, goal - n), full = n >= goal, seats = !full && n + (a || 0) >= goal;
+      return `<tr><td><b>${lab}</b></td><td>${goal}</td><td class="n">${n}${a ? `<br><small>지금 하는 사람 ${a}</small>` : ''}${n > goal ? `<br><small>목표 +${n - goal}</small>` : ''}</td><td>${left}</td><td>${full ? '<span class="badge b-full">마감 · 초과 002로 보냄</span>' : seats ? '<span class="badge b-full">자리 다 참 · 하는 사람이 끝나길 기다림(새로 오면 002)</span>' : '<span class="badge b-ok">모집 중</span>'}</td></tr>`; };
     const all = rows(), c = { done: 0, bad160: 0, bad24: 0, badAtt: 0, notElig: 0, over: 0, active: 0, dropped: 0, checking: 0 }, sa = { M20: 0, M30: 0, F20: 0, F30: 0 }, v57 = { done: 0, active: 0 }, td = kst(Date.now()), tc = { in: 0, done: 0 };
     all.forEach(r => { const k = kindOf(r); c[k]++; if (k === 'done') { const x = sexAge(r); if (sa[x] != null) sa[x]++; } if (isV57(r) && (k === 'done' || k === 'active')) v57[k]++; if (kst(ts(r.startedAt)) === td) tc.in++; if (k === 'done' && kst(ts(r.at)) === td) tc.done++; });
     const tot = t.M + t.F, sum = qM + qF, left = Math.max(0, t.M - qM) + Math.max(0, t.F - qF);   // 11/17 D132
-    $('qt').innerHTML = qrow('남', t.M, qM) + qrow('여', t.F, qF) +
+    $('qt').innerHTML = qrow('남', t.M, qM, act2.M) + qrow('여', t.F, qF, act2.F) +
       `<tr><td><b>합계</b></td><td>${tot}</td><td class="n">${sum}</td><td>${left}</td><td>${left === 0 ? '<span class="badge b-full">목표 도달</span>' : '<span class="badge b-mute">진행 중</span>'}</td></tr>`;
     const ex = c.notElig + c.badAtt + c.bad160 + c.bad24;
     const fr = (lab, n, note) => `<tr><td>${lab}${note ? `<br><small>${note}</small>` : ''}</td><td class="n">${n}</td></tr>`;
@@ -150,6 +151,7 @@
   db.ref('.info/connected').on('value', s => { conn = !!s.val(); upd(); });
   db.ref('meta/ops').on('value', s => { ops = s.val() || {}; loaded.ops = true; render(); }, fail);
   db.ref('meta/quota').on('value', s => { quota = s.val() || {}; loaded.quota = true; render(); }, fail);
+  db.ref('meta/assign2/leases').on('value', s => { leases = s.val() || {}; render(); }, () => {});   // 11/20 ⑰: 못 읽어도 나머지는 그대로
   db.ref('live').orderByKey().startAt('M').endAt('M\uf8ff').on('value', s => { live = s.val() || {}; loaded.live = true; fetchAct(); render(); }, fail);
   setInterval(render, 30000);
 })();
