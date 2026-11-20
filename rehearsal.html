@@ -1564,7 +1564,7 @@ const CONFIG = {
     databaseURL: 'https://moa-t2-study-default-rtdb.asia-southeast1.firebasedatabase.app' },
   FIREBASE_ASSIGN: true,        // true면 Firebase에서 16칸을 가장 적게 찬 칸부터 고르게 배정 · 참여 번호 순번 (주소 ?cell= 이 있으면 칸은 그게 우선)
   ASSIGN2: { ON: true, PATH: 'meta/assign2', LEASE_MIN: 30, AGE_SPLIT: 30 },   // 배포본 ⑯(D142 가안): 칸은 첫 화면 통과 뒤 · 유효 완료 + 지금 하는 사람(30분)만 셈 · 성별 안 16칸 → 사전/사후 → 전체 → 나이대(만 30세부터 '30') · ON false면 예전(P0 · meta/cellCounts)
-  MINI2: { SRC: 'mini2', PATH: 'meta/mini2', AUTO: true, ONE_LINK: true, MAX: 12, CELLS: [5, 6, 7, 8, 13, 14, 15, 16], GROUPS: { pre: { cells: [1, 4, 10, 11], max: 4 }, post: { cells: [5, 6, 7, 8, 13, 14, 15, 16], max: 8 } } },   /* ⑲: 링크 둘 — &mt=pre 사전 4명 · &mt=post 사후 8명 · mt 없으면 사후 */   /* ⑱: 링크 하나 · 사후 8칸 무작위 · 12명 */   // 배포본 ⑯ · ⑰: 미니테스트 2 링크(?pilot=1&src=mini2&k= 1인 1링크) — 파일럿 마감이어도 열림 · ⑰부터 칸은 CELLS 12칸(사후 8 · 사전 4) 안에서 자동(칸당 1명)
+  MINI2: { SRC: 'mini2', PATH: 'meta/mini2', AUTO: true, ONE_LINK: true, MAX: 12, CELLS: [5, 6, 7, 8, 13, 14, 15, 16], GROUPS: { pre: { cells: [1, 4, 10, 11], max: 4 }, post: { cells: [5, 6, 7, 8, 13, 14, 15, 16], max: 8 }, all: { cells: [1, 4, 5, 6, 7, 8, 10, 11, 13, 14, 15, 16], max: 12 } } },   /* ⑳: 링크 하나(mt 없음) = 12칸 무작위(사전 4 · 사후 8) · ⑲ &mt=pre · &mt=post도 됨 */   /* ⑱: 링크 하나 · 사후 8칸 무작위 · 12명 */   // 배포본 ⑯ · ⑰: 미니테스트 2 링크(?pilot=1&src=mini2&k= 1인 1링크) — 파일럿 마감이어도 열림 · ⑰부터 칸은 CELLS 12칸(사후 8 · 사전 4) 안에서 자동(칸당 1명)
   MINI_ARMS: true,              // V22_FB_31(11/10 팀 요청): ?pilot=1&src=mini(칸 고정 없음)는 4칸(목적형 · 탐색형 × 사전 · 사후) × 과업 순서(DA · AD) 여덟 묶음을 번갈아 채움(meta/pilotAssign/mini · 8명 = 4칸 × 2명) · FB_30은 사후 네 묶음 · false면 다른 파일럿 링크처럼
   MAIN_PREFIX: 'M',             // 배포본 ⑥(11/14): 본 설문 참여 번호 앞 글자(M001~) — 파일럿 · 리허설 · 미리보기 · pilot4는 PID_PREFIX(R) 그대로 · ?src=pilot2는 ⑦ · ''면 모두 R
   PILOT2_START: 0,              // 배포본 ⑦(11/15 0시 끔): 0 = 파일럿 ②(?src=pilot2)도 R(공통 순번 meta/seq/R1) · 805로 두면 M805~(11/14 20:38–11/15 0시 그렇게 받은 3명 = M805–M807)
@@ -3788,7 +3788,7 @@ function fbConsent(){
    · meta/assign2 = { leases:{pid:{g,a,c,t,v}}, fin:{pid:{g,a,c,ok,t,v,b}}, n, last } · b = 소프트 런치 33명(연구자 화면이 넣음 · useBase일 때만 칸 수에 듦 · 연령 쿼터에는 늘 듦)
    · meta/ops.assign2 = { pauseAt, pauseSex:{M,F}, useBase, ageCaps:{M20,M30,F20,F30} } · 리허설은 meta/assign2_rh + meta/ops.assign2_rh */
 function assign2On(){ const A = CONFIG.ASSIGN2; return !!(A && A.ON && CONFIG.FIREBASE_ASSIGN && !DEV && (!PILOT || SRC === 'rehearsal' || mini2Auto())); }
-function mini2Group(){ const G = CONFIG.MINI2 && CONFIG.MINI2.GROUPS; if (!G) return ''; const v = String(QS.get('mt') || '').toLowerCase(); return G[v] ? v : 'post'; }   // 배포본 ⑲
+function mini2Group(){ const G = CONFIG.MINI2 && CONFIG.MINI2.GROUPS; if (!G) return ''; const v = String(QS.get('mt') || '').toLowerCase(); return G[v] ? v : 'all'; }   // 배포본 ⑲ · ⑳: mt 없으면 12칸(사전 4 · 사후 8) 무작위
 function mini2CapOpts(){ const G = CONFIG.MINI2.GROUPS, g = mini2Group(); return (G && g) ? { cells: G[g].cells.slice(), totalCap: +G[g].max || 0, capInCells: true } : { cells: CONFIG.MINI2.CELLS.slice(), totalCap: +CONFIG.MINI2.MAX || 0 }; }   // 배포본 ⑲: 묶음마다 칸 · 상한
 function mini2Auto(){ const M = CONFIG.MINI2; return !!(M && M.AUTO && M.CELLS && M.CELLS.length && mini2On()); }   // 배포본 ⑰
 function assign2Rh(){ return PILOT && SRC === 'rehearsal'; }
