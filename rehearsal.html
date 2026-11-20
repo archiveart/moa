@@ -59,7 +59,8 @@
          — 문항 · 화면 · 저장 열 · STUDY_VERSION은 그대로(조원 파일 값)
        · ⑰ (11/20 오전 · 결과 보기 전): 성별 쿼터(남 90 · 여 90)도 칸처럼 '완료 인정 + 지금 하는 사람(30분)'으로 셈 — 칸 배정 트랜잭션 안에서 확인해 동시에 들어와도 목표를 안 넘김
          — 소프트 런치 완료 인정(meta/assign2/fin의 b)도 성별 쿼터에 듦 · 예전 완료 수(meta/quota) 확인은 그대로 둠(못 읽을 때 대비)
-         — 미니테스트 2: 주소의 칸(x2 · w · order · set)은 안 쓰고 12칸(사후 8 · 사전 4) 안에서 자동 배정 · 칸당 1명(완료 인정 + 하는 중) · meta/assign2_mt · 다 차면 '자리가 다 찼어요'
+         — ⑱(11/20 낮 · 준영 결정): 미니테스트 2(12명 파일럿)는 링크 하나 · 모두 사후 · 사후 8칸 중 가장 적게 찬 칸들에서 무작위(결정/행동 순서 · 목적/탐색 · 니트 세트) · 12명(완료 인정 + 하는 중)에서 멈춤 · 파일럿 기록
+         — (⑰ 때) 미니테스트 2: 주소의 칸(x2 · w · order · set)은 안 쓰고 12칸(사후 8 · 사전 4) 안에서 자동 배정 · 칸당 1명(완료 인정 + 하는 중) · meta/assign2_mt · 다 차면 '자리가 다 찼어요'
        · ① 파일럿 링크 마감(PILOT_CLOSED) — ?pilot=1(인지 · 사전 · 미니 · 실제 진행)은 '모집이 끝났어요' · 리허설(src=rehearsal) · 미리보기(?dev=1) · 본 설문 링크는 그대로
        · ② 연결 리허설 링크(?pilot=1&src=rehearsal)는 '1회 참여' 막기에서 제외(ONE_TIME) — 같은 브라우저에서 32회 자동 리허설
        · ③ 파일럿 · 미니 배정 코드(MINI_ARMS · PILOT_BALANCE) — ①로 링크가 닫혀 있어 실제로는 안 쓰임 · ④ D66 남은 한 자리(미리보기 건너뛰기 경로의 t_submit도 1회차만)
@@ -1563,7 +1564,7 @@ const CONFIG = {
     databaseURL: 'https://moa-t2-study-default-rtdb.asia-southeast1.firebasedatabase.app' },
   FIREBASE_ASSIGN: true,        // true면 Firebase에서 16칸을 가장 적게 찬 칸부터 고르게 배정 · 참여 번호 순번 (주소 ?cell= 이 있으면 칸은 그게 우선)
   ASSIGN2: { ON: true, PATH: 'meta/assign2', LEASE_MIN: 30, AGE_SPLIT: 30 },   // 배포본 ⑯(D142 가안): 칸은 첫 화면 통과 뒤 · 유효 완료 + 지금 하는 사람(30분)만 셈 · 성별 안 16칸 → 사전/사후 → 전체 → 나이대(만 30세부터 '30') · ON false면 예전(P0 · meta/cellCounts)
-  MINI2: { SRC: 'mini2', PATH: 'meta/mini2', AUTO: true, CELLS: [5, 6, 7, 8, 13, 14, 15, 16, 1, 4, 10, 11] },   // 배포본 ⑯ · ⑰: 미니테스트 2 링크(?pilot=1&src=mini2&k= 1인 1링크) — 파일럿 마감이어도 열림 · ⑰부터 칸은 CELLS 12칸(사후 8 · 사전 4) 안에서 자동(칸당 1명)
+  MINI2: { SRC: 'mini2', PATH: 'meta/mini2', AUTO: true, ONE_LINK: true, MAX: 12, CELLS: [5, 6, 7, 8, 13, 14, 15, 16] },   /* ⑱: 링크 하나 · 사후 8칸 무작위 · 12명 */   // 배포본 ⑯ · ⑰: 미니테스트 2 링크(?pilot=1&src=mini2&k= 1인 1링크) — 파일럿 마감이어도 열림 · ⑰부터 칸은 CELLS 12칸(사후 8 · 사전 4) 안에서 자동(칸당 1명)
   MINI_ARMS: true,              // V22_FB_31(11/10 팀 요청): ?pilot=1&src=mini(칸 고정 없음)는 4칸(목적형 · 탐색형 × 사전 · 사후) × 과업 순서(DA · AD) 여덟 묶음을 번갈아 채움(meta/pilotAssign/mini · 8명 = 4칸 × 2명) · FB_30은 사후 네 묶음 · false면 다른 파일럿 링크처럼
   MAIN_PREFIX: 'M',             // 배포본 ⑥(11/14): 본 설문 참여 번호 앞 글자(M001~) — 파일럿 · 리허설 · 미리보기 · pilot4는 PID_PREFIX(R) 그대로 · ?src=pilot2는 ⑦ · ''면 모두 R
   PILOT2_START: 0,              // 배포본 ⑦(11/15 0시 끔): 0 = 파일럿 ②(?src=pilot2)도 R(공통 순번 meta/seq/R1) · 805로 두면 M805~(11/14 20:38–11/15 0시 그렇게 받은 3명 = M805–M807)
@@ -3797,7 +3798,7 @@ function badReason(){ return fastBad() ? 'fast' : att30Bad() ? 'att30' : ''; }
 function verShort(){ return (String(CONFIG.STUDY_VERSION || '').match(/v\d+\.\d+/) || [''])[0]; }
 let a2Offset = null, leaseAt = 0;
 async function serverNow(){ if (a2Offset == null){ try{ const sn = await fbWait(fbdb.ref('.info/serverTimeOffset').once('value'), 3000); a2Offset = (sn && +sn.val()) || 0; }catch(e){ a2Offset = 0; } } return Date.now() + a2Offset; }
-function assign2Opts(ops){ if (mini2Auto()) return { leaseMin: +(CONFIG.ASSIGN2.LEASE_MIN) || 30, pauseAt: 0, pauseSex: null, useBase: false, ageCaps: null, cells: CONFIG.MINI2.CELLS.slice(), cellCap: 1, sexCap: null };   // 배포본 ⑰: 미니테스트 2 = 12칸 · 칸당 1명
+function assign2Opts(ops){ if (mini2Auto()) return { leaseMin: +(CONFIG.ASSIGN2.LEASE_MIN) || 30, pauseAt: 0, pauseSex: null, useBase: false, ageCaps: null, cells: CONFIG.MINI2.CELLS.slice(), cellCap: 0, totalCap: +CONFIG.MINI2.MAX || 0, randomPick: true, sexCap: null };   // 배포본 ⑱: 칸당 상한 없음 · 전체 12명 · 무작위   // 배포본 ⑰: 미니테스트 2 = 12칸 · 칸당 1명
   const o = (ops && ops[assign2Rh() ? 'assign2_rh' : 'assign2']) || {};
   return { leaseMin: +(CONFIG.ASSIGN2.LEASE_MIN) || 30, pauseAt: +o.pauseAt || 0, pauseSex: o.pauseSex || null, useBase: !!o.useBase, ageCaps: o.ageCaps || null }; }
 function assign2Pick(cur, me, now, o){   // 트랜잭션 안에서 쓰는 순수 함수 — {next, cell} | {abort:'pause'|'age'}
@@ -3817,6 +3818,7 @@ function assign2Pick(cur, me, now, o){   // 트랜잭션 안에서 쓰는 순수
     if (f.g === me.g && f.a === me.a) inAge++; });
   Object.keys(c.leases).forEach(p => { const L = c.leases[p]; add(L.g, L.a, +L.c); inNow++; if (L.g === me.g){ inSex++; inSexAll++; if (L.a === me.a) inAge++; } });
   if (o.sexCap && +o.sexCap[me.g] > 0 && inSexAll >= +o.sexCap[me.g]) return {abort:'quota'};   // 배포본 ⑰: 성별 쿼터 — 동시에 들어와도 목표에서 멈춤
+  if (o.totalCap > 0 && inNow >= o.totalCap) return {abort:'full'};   // 배포본 ⑱: 미니테스트 2 전체 12명(완료 인정 + 하는 중)
   if (o.pauseAt > 0 && inNow >= o.pauseAt) return {abort:'pause'};
   if (o.pauseSex && +o.pauseSex[me.g] > 0 && inSex >= +o.pauseSex[me.g]) return {abort:'pause'};
   if (o.ageCaps && +o.ageCaps[me.g + me.a] > 0 && inAge >= +o.ageCaps[me.g + me.a]) return {abort:'age'};
@@ -3824,7 +3826,7 @@ function assign2Pick(cur, me, now, o){   // 트랜잭션 안에서 쓰는 순수
   const known = me.g === 'M' || me.g === 'F', cmp = (a, b) => { for (let i = 0; i < a.length; i++){ if (a[i] !== b[i]) return a[i] - b[i]; } return 0; };
   let pick = 0, best = null;
   for (let k = 1; k <= 16; k++){ if (o.cells && o.cells.indexOf(k) < 0) continue; if (o.cellCap > 0 && ALL[k] >= o.cellCap) continue;   // 배포본 ⑰: 고를 수 있는 칸 · 칸당 상한(미니테스트 2)
-    const key = known ? [G[k], X[x2Of(k)], ALL[k], GA[k], me.rnd[k - 1]] : [ALL[k], X[x2Of(k)], 0, 0, me.rnd[k - 1]]; if (!best || cmp(key, best) < 0){ best = key; pick = k; } }
+    const key = o.randomPick ? [ALL[k], me.rnd[k - 1]] : known ? [G[k], X[x2Of(k)], ALL[k], GA[k], me.rnd[k - 1]] : [ALL[k], X[x2Of(k)], 0, 0, me.rnd[k - 1]]; if (!best || cmp(key, best) < 0){ best = key; pick = k; } }
   if (!pick) return {abort:'full'};   // 배포본 ⑰: 고를 칸이 없음(미니테스트 2 다 참)
   c.leases[me.pid] = {g:me.g, a:me.a, c:pick, t:now, v:me.v};
   c.n = (+c.n || 0) + 1; c.last = {pid:me.pid, c:pick, t:now};
@@ -3879,7 +3881,7 @@ function assign2Release(){ try{ if (S && S.cellLease && !S.cellFinDone && fbRead
 function mini2On(){ const M = CONFIG.MINI2; return !!(M && PILOT && !DEV && SRC === M.SRC); }
 async function mini2Claim(){   // 미니테스트 2: &k= 키를 이 참여 번호로 잡음 · 다른 번호가 이미 잡았으면 'used' · 키가 없으면 'nokey' · 못 읽으면 막지 않음('')
   const k = String(QS.get('k') || '').replace(/[^0-9A-Za-z_-]/g, '').slice(0, 24);
-  if (!k) return 'nokey';
+  if (!k) return (CONFIG.MINI2 && CONFIG.MINI2.ONE_LINK) ? '' : 'nokey';   // 배포본 ⑱: 링크 하나(키 없음)도 들어옴
   if (!fbReady()) return '';
   let used = false, aborted = false;
   const tx = fbdb.ref(CONFIG.MINI2.PATH + '/' + k).transaction(cur => { if (aborted) return; if (cur && cur.pid && cur.pid !== S.pid){ used = true; return; } used = false; return Object.assign({}, cur || {}, {pid:S.pid, cell:S.cond.cell, at:new Date().toISOString()}); });
