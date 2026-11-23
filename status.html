@@ -7,6 +7,7 @@
 <title>SBCX 2조 설문 현황</title>
 <!-- 11/20 오후(엠브레인 요청): meta/ops.closed + 성별 목표 0 · 0 = 연구팀이 닫음 → 맨 위 '지금 닫힘 · 새로 오면 002 · 다시 여는 때' · 표의 목표는 원래 숫자(남 90 · 여 90) · 상태 '지금 닫힘' -->
 <!-- 11/17 D132: 합계 '남은 수' = 남 · 여 남은 수의 합, '목표 도달'은 두 성별이 다 찼을 때만(한 성별이 목표보다 넘쳐도 다른 성별 남은 자리를 지우지 않게) · 넘친 수 표시 -->
+<!-- 11/23(현황 페이지 · 29 ↔ 32 맞춤): 끝낸 사람의 완료 인정은 설문이 칸 기록(meta/assign2/fin.ok)에 남긴 값을 먼저 봄 — 제출 중 live.valid가 0으로 덮인 기록(M098 · M144 · M146)도 연구자 화면 · 설문 상한과 같은 수로 셈 · 24번 오답으로 바로 끝난 기록(screenReason att30)은 24번 오답(003)으로 -->
 <!-- 11/21 00:30(연구자 화면 66.5): 재검사 단계면 쿼터 표 = 오늘 받는 수(성별마다 16 · 합 32) · 닫힘 줄 안내 · 성별 × 나이 = 주분석 기준 · 연령 쿼터 줄 글 -->
 <!-- 11/20 밤(D136 · D137 · 연구자 화면 66.4): 소프트 런치도 새 기준 → 쿼터 표 = 주분석 기준(재검사 시작 때 남 11 · 여 14로 맞춤) · 001로 지급됐지만 빠진 사람은 표 아래 '엠브레인 완료 총 목표' 줄 · 흐름 표 설명 -->
 <!-- 11/20 (D136 · D138 · 배포본 ⑯): 24번 주의 점검 오답도 불성실 003 · 성별 × 나이 표(완료 인정) · 재검사 상한(32명) · 연령 쿼터 표시 · v22.57 live(valid · bad · sex · ageBand · ver) 우선, 예전 기록은 participants/{번호}/answers Q1 · Q2 · Q30 읽기만 -->
@@ -95,7 +96,7 @@
   const ts = v => { const t = Date.parse(v || ''); return isNaN(t) ? 0 : t; };
   const kst = t => new Date(t + 9 * 3600000).toISOString().slice(0, 10);
   const hms = t => new Date(t + 9 * 3600000).toISOString().slice(11, 19);
-  let ops = {}, quota = {}, live = {}, act = {}, ext = {}, leases = {}, conn = null, loaded = { ops: false, quota: false, live: false }, lastAt = 0;
+  let ops = {}, quota = {}, live = {}, act = {}, ext = {}, leases = {}, fin2 = {}, conn = null, loaded = { ops: false, quota: false, live: false }, lastAt = 0;
 
   if (typeof firebase === 'undefined') { $('upd').innerHTML = '<span class="err">연결 도구를 못 불러왔어요 — 새로 고침해 주세요</span>'; return; }
   firebase.initializeApp(CFG); const db = firebase.database();
@@ -112,9 +113,12 @@
   }
   const fin = r => !!r.submitted || r.status === 'complete';   // 11/17 D130
   function kindOf(r) {
-    if (fin(r)) { if (r.valid !== undefined && r.valid !== null && r.ver) return Number(r.valid) ? 'done' : r.bad === 'att30' ? 'bad24' : 'bad160';   // 11/20: 배포본 ⑯이 끝낼 때 정한 값
+    if (fin(r)) { const f2 = fin2[r.key];
+      if (f2 && !Number(f2.b) && r.ver) { if (Number(f2.ok)) return 'done'; if (r.bad === 'att30') return 'bad24'; if (r.bad === 'fast') return 'bad160';   // 11/23: 설문이 끝낼 때 정한 칸 기록(fin.ok) 먼저 — live.valid가 제출 중에 0으로 덮여도 연구자 화면 · 설문 상한과 같게
+        const a = act[r.key]; if (a === undefined || a === null) return 'checking'; return Number(a) < FAST ? 'bad160' : 'bad24'; }
+      if (r.valid !== undefined && r.valid !== null && r.ver) return Number(r.valid) ? 'done' : r.bad === 'att30' ? 'bad24' : 'bad160';   // 11/20: 배포본 ⑯이 끝낼 때 정한 값
       const a = act[r.key], e = ext[r.key]; if (a === undefined || a === null || !e) return 'checking'; return Number(a) < FAST_OLD ? 'bad160' : 'done'; }   // 11/20 오후 준영 결정: 소프트 런치(v22.56)는 그때 규칙 그대로(160초 · 24번 안 봄)
-    if (r.status === 'screened_out') { const w = r.screenReason || ''; return (w === 'quota' || w === 'pause' || w === 'quota_age') ? 'over' : w === 'att' ? 'badAtt' : 'notElig'; }
+    if (r.status === 'screened_out') { const w = r.screenReason || ''; return (w === 'quota' || w === 'pause' || w === 'quota_age') ? 'over' : w === 'att' ? 'badAtt' : w === 'att30' ? 'bad24' : 'notElig'; }   // 11/23: 24번 오답으로 바로 끝남 = 24번 오답(003)
     return Date.now() - ts(r.at) < STALE ? 'active' : 'dropped';
   }
   function fetchAct() {
@@ -172,6 +176,7 @@
   db.ref('meta/ops').on('value', s => { ops = s.val() || {}; loaded.ops = true; render(); }, fail);
   db.ref('meta/quota').on('value', s => { quota = s.val() || {}; loaded.quota = true; render(); }, fail);
   db.ref('meta/assign2/leases').on('value', s => { leases = s.val() || {}; render(); }, () => {});   // 11/20 ⑰: 못 읽어도 나머지는 그대로
+  db.ref('meta/assign2/fin').on('value', s => { fin2 = s.val() || {}; render(); }, () => {});   // 11/23: 끝낸 사람 칸 기록(유효 완료 ok) — 못 읽으면 예전처럼 live.valid
   db.ref('live').orderByKey().startAt('M').endAt('M\uf8ff').on('value', s => { live = s.val() || {}; loaded.live = true; fetchAct(); render(); }, fail);
   setInterval(render, 30000);
 })();
