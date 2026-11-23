@@ -6,6 +6,16 @@
 <title>쇼핑앱 AI 추천 경험 연구</title>
 <!--
   2조 SBCX 실험물 v17 (팀 V13_FB_1(v16.1 + Firebase) 바탕 + 피드백 반영, 2026-11-04)
+  V22_FB_61 배포본 ㉒ (11/23, 준영 · 규빈 · 지혜 · Claude · D145): 24번(Q30) 주의 점검 오답이면 그 자리에서 끝냄 = 불성실 003(엠브레인 '왜 끝까지 했는데 003이냐' 불만) · 칸 자리 반환(fin ok 0) · 성별 쿼터에 안 셈 · 기록 status screened_out · screenReason att30
+       · 제출 중 live.valid 덮임 고침: 끝낼 때 정한 완료 인정 값(finValid · finBad)을 먼저 정하고 그 뒤 live 쓰기는 모두 그 값(11/23 M098 · M144 · M146이 현황 페이지에서 속도 미달로 보였던 원인)
+       · 제출 뒤 끝 화면이 바로 나옴(구글 시트 백업은 뒤에서 · 엠브레인으로 갈 때 최대 6초 기다림) — ㉑은 백업 6초를 다 기다려 끝 화면이 6–7초 늦음
+       · STUDY_VERSION v22.60 → v22.61 — 이외에는 ㉑ 그대로(22번 문구 · 배정 · 쿼터 · 재검사 상한 그대로)
+  V22_FB_60 배포본 ㉑ (11/20 밤, 아영 FB_60 · 준영 · Claude): 22번(Q29) 보기 앞 '예' · '아니요'만 굵게([[ ]] · 검정 · 저장 값 · 코드북 내려받기에는 글자만) + STUDY_VERSION 'SBCX-2조-v22.60 (2026-11-20)'
+       · 재검사 · 본 설문은 v22.60 · v22.58 = 12명 파일럿(미니테스트 2) · v22.59 판은 따로 올리지 않음 — 이외에는 FB_59(= 배포본20 + 22번 문구) 그대로(배정 · 쿼터 · 12명 파일럿 · 운영 고침 ⑯–⑳ 그대로)
+  V22_FB_59 (11/20, 아영 · Claude): 22번(Q29) 문항 문구만 — 이외에는 V22_FB_58 배포본 그대로(STUDY_VERSION 포함)
+       · 줄기 '이번 쇼핑에서 처음 빼거나 고를 때, ‘AI 추천 결과 6개’를 이미 본 상태였나요?' → '처음 빼거나 고를 때, 가격이 적힌 니트 상품 6개가 이미 보였나요?'
+       · 보기 '예' → '예, 상품이 보이는 상태에서 빼거나 골랐다'(post) · '아니요' → '아니요, 상품을 보기 전에 빼거나 골랐다'(pre) · 보기 아래 흐름 줄 뺌
+       · 코드 post / pre · 정답 · 보기 순서(예 → 아니요) · 열 Q29 그대로
   V22_FB_58 (11/20, 아영 · Claude): 23번 양 끝 괄호 풀이 문구 — 이외에는 V22_FB_57 배포본 그대로
        · 23번(Q8 · W) 왼쪽 풀이 '(살 것을 정해 둔 게 없었다)' → '(가격 · 색 같은 조건이 정해져 있지 않았다)' · 오른쪽 풀이 '(살 것이 정해져 있었다 · 예: 가격, 색)' → '(가격 · 색 같은 조건이 정해져 있었다)'
          · 줄기 · 양 끝 말(전혀 구체적이지 않다 / 매우 구체적이다) · 1–7 · 코드 · 열 Q8 그대로
@@ -1541,7 +1551,7 @@ body.tutm #top{display:none}
    설정
    ========================================================= */
 const CONFIG = {
-  STUDY_VERSION: 'SBCX-2조-v22.58 (2026-11-20)',   // V22_FB_58   // V22_FB_57   // V22_FB_56   // V22_FB_55   // V22_FB_54   // V22_FB_53   // V22_FB_52   // V22_FB_51   // V22_FB_50   // V22_FB_49   // V22_FB_48   // V22_FB_47   // V22_FB_46   // V22_FB_45   // V22_FB_44
+  STUDY_VERSION: 'SBCX-2조-v22.61 (2026-11-23)',   // 배포본 ㉑ (FB_60 · 11/20 밤)   // V22_FB_58   // V22_FB_57   // V22_FB_56   // V22_FB_55   // V22_FB_54   // V22_FB_53   // V22_FB_52   // V22_FB_51   // V22_FB_50   // V22_FB_49   // V22_FB_48   // V22_FB_47   // V22_FB_46   // V22_FB_45   // V22_FB_44
   SCN_LAYOUT48: true,           // V22_FB_48: 상황 카드 위쪽 모양(핵심 한 줄 띠 · 태그 상자). false = FB_47 모양
   AUTO_SCROLL_SEC: 20,          // V22_FB_50: 스크롤이 생기는 폰 화면에서 이 초 동안 안 내리면 자동으로 끝까지 내림. 0 = 끔
   POST_LAYOUT49: true,          // V22_FB_49: 사후 추천 화면 — 상품 6개를 AI 카드 안에 · 맞추기 상자는 아래 · 첫 로딩 딤. false = FB_48 모양
@@ -1575,6 +1585,7 @@ const CONFIG = {
     RETURN: { complete: 'https://survey.panel.co.kr/Foreign/nPanelSupply_End.asp?Alias=4817224229&cid={pid}&status=001', screen: 'https://survey.panel.co.kr/Foreign/nPanelSupply_End.asp?Alias=4817224229&cid={pid}&status=003', quota: 'https://survey.panel.co.kr/Foreign/nPanelSupply_End.asp?Alias=4817224229&cid={pid}&status=002', bad: 'https://survey.panel.co.kr/Foreign/nPanelSupply_End.asp?Alias=4817224229&cid={pid}&status=003' },   // 배포본 ⑬(11/16 엠브레인 회신): 완료 001 · 초과 002 · 제외 003(스크리닝 탈락 · 불성실 둘 다) · 엠브레인 주소의 cid=[IDnumber] 자리 = {pid}(받은 패널 ID) — 엠브레인 돌아가는 주소 — 받으면 여기에만 넣기(비어 있으면 이동 안 함) · 주소에 {pid}가 있으면 그 자리에, 없으면 끝에 pid=값을 붙임
     FAST_BAD_SEC: 200,          // 끝냈을 때 (전체 − 화면 이탈) 시간이 이 초 미만이면 완료 대신 '불성실' 주소로(사전등록 160초 · 0이면 안 함 · 미리보기는 안 봄)   // 배포본 ⑯: D137 결정 값
     ATT30_BAD: true,            // 배포본 ⑯(D136): 24번(Q30) 주의 점검 오답 = 불성실 003 · 성별 쿼터 · 칸 수에 안 셈 · false면 예전(민감도만)
+    ATT30_STOP: true,           // 배포본 ㉒(D145): 24번(Q30) 오답이면 [다음]을 누를 때 그 자리에서 끝냄(003) · false면 ㉑처럼 끝까지 응답한 뒤 003
     AUTO_SEC: 15,               // 끝 화면에서 자동으로 이동하기까지 초(0이면 단추만)
     QUOTA: { ON: true, MAIN_ONLY: true, SOFT: { M: 16, F: 16 }, MAIN: { M: 90, F: 90 } },   // 배포본 ⑯: MAIN_ONLY = 소프트 런치가 끝나 목표는 늘 본 조사   // 배포본 ⑭: 성별 쿼터 — 소프트 런치('전체 배포 시작 시각' 전) 16 · 16 → 그 뒤 90 · 90 · meta/ops.quota {soft:{M,F}, main:{M,F}}가 있으면 그 숫자 · ON false면 안 막음
   },
@@ -1850,7 +1861,7 @@ const ATT0 = {code:'ATT0', text:"이 문항에는 '5'를 골라 주세요", att:
 /* 과업 끝 조작점검. 유형(Q28) · 시점(Q29) 모두 과업마다(v15부터 시점도 과업 1 끝에서 묻기) */
 const MC_ITEMS = [
   {code:'Q28', v:'X1 유형 조작점검', q:'이번 쇼핑의 추천 맞추기 화면에서 내가 한 일은', fixedOpts:true, opts:[['D','원하지 않는 것을 제외했다'],['A','원하는 조건을 정했다']]}   /* V22_FB_47 추가 (D99): '추천에서 · 추천에' 뺌 — 사전은 추천을 보기 전에 했으므로 시점 단서가 섞이지 않게 */,   // V22_FB_45: 보기 문구 — '뺐다 / 골랐다'가 서로 바꿔 읽힘(사전×결정 '골랐다' · 사후×행동 '뺐다' 오답) → 빼기·고르기 축을 벗어난 말로 · 코드 D / A · 줄기 · 화면 상자 제목은 그대로   // V22_FB_7 수정 목록 1 · D26: 보기 = 두 유형 상자 제목의 동사('원하지 않는 것을 눌러 빼 주세요' · '원하는 조건을 골라 주세요', FB_5부터 결정 두 칸 같음)
-  {code:'Q29', v:'X2 시점 조작점검', q:'이번 쇼핑에서 처음 빼거나 고를 때, ‘AI 추천 결과 6개’를 이미 본 상태였나요?', fixedOpts:true, opts:[['post','예','[상품 추천받기] → AI 추천 결과 → 빼거나 고르기 → 바뀐 추천 결과'],['pre','아니요','[상품 추천받기] → 빼거나 고르기 → AI 추천 결과']],   /* V22_FB_57 (D133): 줄기 '처음 빼거나 고를 때 · 결과를 본 상태' 예/아니요 · 보기 아래 흐름 줄 그대로 · 코드 pre/post · 정답 · 열 Q29 그대로 */   /* V22_FB_54: 보기 · 흐름 줄 새 문구(코드 · 정답 그대로) */   /* V22_FB_49: 순서형 줄기 · 보기([[ ]] = 파랑 굵게) · 흐름 줄 · 코드 그대로 */   /* V22_FB_46: 흐름 줄 다시(검색 흐름) */   /* V22_FB_45: 보기 문구 · 흐름 줄 뺌(홈 [추천받기]가 없어졌고 사후 '다시 나옴'과 헷갈림) — '보면서' = 빼거나 고르던 그 순간 상품이 화면에 있었는지 · 질문 줄기 · 코드 pre/post · 열 이름 그대로 */ once:!CONFIG.Q29_EACH_TASK},   // V22_FB_21: 원래 문항('이번 과업에서 나는' · 추천을 받기 전에 정했다 / 추천을 본 뒤에 고쳤다) 바탕 · '받기' → '상품을 보기'([추천받기] 버튼과 헷갈림). FB_7–20: '이번 쇼핑에서 빼거나 고를 때, 그 화면에' · 가격이 붙은 추천 상품은 아직 없었다 / 이미 나와 있었다   // once면 과업 2 끝에만, 열 이름 Q29
+  {code:'Q29', v:'X2 시점 조작점검', q:'처음 빼거나 고를 때, 가격이 적힌 니트 상품 6개가 이미 보였나요?', fixedOpts:true, opts:[['post','[[예]], 상품이 보이는 상태에서 빼거나 골랐다'],['pre','[[아니요]], 상품을 보기 전에 빼거나 골랐다']],   /* V22_FB_59: 줄기 · 보기 문구(아영 11/20 · 22번 수정.png) · 흐름 줄 뺌 · 코드 · 정답 · 열 그대로 */   /* V22_FB_57 (D133): 줄기 '처음 빼거나 고를 때 · 결과를 본 상태' 예/아니요 · 보기 아래 흐름 줄 그대로 · 코드 pre/post · 정답 · 열 Q29 그대로 */   /* V22_FB_54: 보기 · 흐름 줄 새 문구(코드 · 정답 그대로) */   /* V22_FB_49: 순서형 줄기 · 보기([[ ]] = 파랑 굵게) · 흐름 줄 · 코드 그대로 */   /* V22_FB_46: 흐름 줄 다시(검색 흐름) */   /* V22_FB_45: 보기 문구 · 흐름 줄 뺌(홈 [추천받기]가 없어졌고 사후 '다시 나옴'과 헷갈림) — '보면서' = 빼거나 고르던 그 순간 상품이 화면에 있었는지 · 질문 줄기 · 코드 pre/post · 열 이름 그대로 */ once:!CONFIG.Q29_EACH_TASK},   // V22_FB_21: 원래 문항('이번 과업에서 나는' · 추천을 받기 전에 정했다 / 추천을 본 뒤에 고쳤다) 바탕 · '받기' → '상품을 보기'([추천받기] 버튼과 헷갈림). FB_7–20: '이번 쇼핑에서 빼거나 고를 때, 그 화면에' · 가격이 붙은 추천 상품은 아직 없었다 / 이미 나와 있었다   // once면 과업 2 끝에만, 열 이름 Q29
 ];
 /* 결정·행동 선호(보조): 두 과업 끝에 한 번, 보기 순서 무작위(A11-3 비고). 28·29번은 ①② 순서 고정 */
 const PREF_ITEM = {code:'Q32', v:'결정·행동 선호(보조)', q:'다음에 쇼핑할 때 쓴다면 어느 방식을 고르겠어요?', opts:[['D','원하지 않는 것을 빼기'],['A','원하는 조건을 고르기']], once:true};   // V22_FB_7: 21번 보기와 같은 동사
@@ -1899,8 +1910,10 @@ function panelReturnUrl(kind){
   const e = encodeURIComponent(id);
   return u.indexOf('{pid}') >= 0 ? u.split('{pid}').join(e) : /=$/.test(u) ? u + e : u + (u.indexOf('?') >= 0 ? '&' : '?') + (P.PARAM || 'pid') + '=' + e;
 }
+let bkSave = null;   // 배포본 ㉒: 제출 때 시작한 백업(구글 시트) — 엠브레인으로 가기 전에 끝나기를 최대 6초 기다림
 async function panelGo(kind, ms){   // 주소가 비어 있으면 아무것도 안 함 · 이동 전에 마지막 상태를 Firebase에 한 번 더(완료는 제출 때 이미 저장)
   const url = panelReturnUrl(kind); if (!url) return false;
+  if (bkSave){ try{ await Promise.race([bkSave, new Promise(r => setTimeout(r, 6000))]); }catch(e){} }   // 배포본 ㉒
   try{ if (S && S.assigned && !S.submitted && fbReady()) await fbWait(Promise.all([fbdb.ref('participants/' + S.pid).set(fbSession()), fbdb.ref('live/' + S.pid).set(fbLive())]), 4000); }catch(e){}
   setTimeout(() => { try{ location.replace(url); }catch(e){ location.href = url; } }, ms == null ? 1500 : ms);
   return true;
@@ -3267,7 +3280,7 @@ function renderEnd(){
     </div>`;
   setFoot(null);
   if (ret && ret.url){   // 배포본 ⑨
-    const b = document.getElementById('panelBack'); if (b) b.onclick = () => { b.disabled = true; panelGo(ret.kind, 0); };
+    const b = document.getElementById('panelBack'); if (b) b.onclick = () => { b.disabled = true; b.textContent = '엠브레인으로 이동하는 중…'; panelGo(ret.kind, 0); };   // 배포본 ㉒: 누른 뒤 백업을 기다리는 동안 글자
     let left = CONFIG.PANEL.AUTO_SEC || 0; const c = document.getElementById('panelCount');
     if (left > 0){ const tm = setInterval(() => { left--; if (c) c.textContent = String(Math.max(0, left)); if (left <= 0){ clearInterval(tm); if (b) b.disabled = true; panelGo(ret.kind, 0); } }, 1000); }
   }
@@ -3298,7 +3311,7 @@ function onPanelClick(e){
     setNextEnabled(ok); save(); return;
   }
   if (act === 'prev'){ if (canGoBack()){ log('q_back', {from:curStep().id, to:steps[S.stepIdx - 1].id}); goPrev(); } return; }
-  if (act === 'next'){ if (st.kind === 'demo'){ const why = screenReason(); if (why){ screenOut(why); return; } setNextEnabled(false); demoGate().then(w => { if (w) screenOut(w); else goNext(); }); return; } goNext(); return; }   // 배포본 ⑭: 그 성별이 차면 초과 002
+  if (act === 'next'){ if (st.kind === 'demo'){ const why = screenReason(); if (why){ screenOut(why); return; } setNextEnabled(false); demoGate().then(w => { if (w) screenOut(w); else goNext(); }); return; } if (att30Stop(st)){ att30Out(); return; } goNext(); return; }   // 배포본 ㉒(D145): 24번 오답이면 여기서 끝냄   // 배포본 ⑭: 그 성별이 차면 초과 002
   if (act === 'consent'){ doConsent(); return; }
   if (act === 'phone-next'){ doPhone(); return; }
   if (act === 'phone-skip'){ S.consent.phone = false; S.consent.phoneWithdrawnAt = new Date().toISOString(); log('phone', {ok:false, skipped:true}); skipPhone(); return; }
@@ -3527,16 +3540,29 @@ function screenReason(){
 function screenMsg(why){
   if (why === 'mt_full') return '미니테스트 자리가 지금 다 찼어요. 연구팀에 알려 주세요.';   // 배포본 ⑰
   if (why === 'quota' || why === 'pause' || why === 'quota_age') return '지금은 이 조사의 목표 인원이 다 차서 참여가 끝났어요.';   // 배포본 ⑯: 재검사 상한 · 연령 쿼터도 같은 말   // 배포본 ⑭
+  if (why === 'att30') return '주의 점검 문항(‘2’를 골라 달라는 문항)에 다르게 답하셔서 설문이 여기서 끝났어요. 이 조사 규칙에 따라 불성실 응답으로 처리돼요.';   // 배포본 ㉒(D145)
   if (why === 'shop') return '이 연구는 최근 3개월 동안 온라인으로 옷을 산 적이 있는 분만 참여할 수 있어요.';
   if (why === 'age' || why === 'age_over') return CONFIG.MAX_AGE ? `이 연구는 만 ${CONFIG.MIN_AGE}–${CONFIG.MAX_AGE}세만 참여할 수 있어요.` : `이 연구는 만 ${CONFIG.MIN_AGE}세 이상 성인만 참여할 수 있어요.`;
   return '이 연구의 참여 조건에 해당하지 않아 참여가 끝났어요.';
+}
+function att30Stop(st){   // 배포본 ㉒(D145): 24번(Q30)이 있는 화면에서 [다음] · 오답이면 true
+  const P = CONFIG.PANEL || {}; if (!P.ATT30_STOP || !st) return false;
+  const e = st.extra, has = Array.isArray(e) ? e.some(x => x && x.code === ATT30.code) : !!(e && e.code === ATT30.code);
+  return has && S && S.answers && S.answers[ATT30.code] != null && ans(ATT30.code) !== ATT30.att;
+}
+async function att30Out(){   // 배포본 ㉒(D145): 칸 자리 반환(fin ok 0 · 성별 쿼터에 안 셈) → 끝 화면 → 엠브레인 003
+  setNextEnabled(false);
+  log('att30_out', {q30: ans(ATT30.code)});
+  try{ await assign2Finish(); }catch(e){}
+  screenOut('att30');
+  fbSync(true);
 }
 function screenOut(why){
   log('screen_out', {reason:why, age:ans('Q2'), shop:ans('Q3'), att:ans('ATT0')});
   S.status = 'screened_out'; S.screenReason = why; delete S.phone; S.done = true; save();
   if (!DEV && ONE_TIME && !['quota', 'pause', 'quota_age', 'mt_full'].includes(why)) markDone({pid:S.pid, at:new Date().toISOString(), screened:true, reason:why, panelId:S.panelId || ''});
-  blockScreen(`<h2 class="pt">참여해 주셔서 감사합니다</h2><p class="lead">${screenMsg(why)} ${CONFIG.PHONE_ON ? '적어 주신 번호와 ' : ''}응답은 저장하지 않았어요.</p>`);
-  { const k = why === 'att' ? 'bad' : ['quota', 'pause', 'quota_age', 'mt_full'].includes(why) ? 'quota' : 'screen'; if (panelMode() && S.panelId && panelReturnUrl(k)){ panelNote(); panelGo(k, 2500); } }   // 배포본 ⑭: 쿼터 초과 = 002   // 배포본 ⑨: 3번 주의 점검 오답 = 불성실 · 나이 · 구매 0회 = 스크리닝 탈락
+  blockScreen(`<h2 class="pt">참여해 주셔서 감사합니다</h2><p class="lead">${screenMsg(why)} ${why === 'att30' ? (CONFIG.PHONE_ON ? '적어 주신 번호는 저장하지 않았고, ' : '') + '답해 주신 내용은 분석에 쓰지 않아요.' : (CONFIG.PHONE_ON ? '적어 주신 번호와 ' : '') + '응답은 저장하지 않았어요.'}</p>`);   // 배포본 ㉒: 24번은 앞 응답이 이미 저장돼 있어 '분석에 쓰지 않아요'
+  { const k = (why === 'att' || why === 'att30') ? 'bad' : ['quota', 'pause', 'quota_age', 'mt_full'].includes(why) ? 'quota' : 'screen'; if (panelMode() && S.panelId && panelReturnUrl(k)){ panelNote(); panelGo(k, 2500); } }   // 배포본 ⑭: 쿼터 초과 = 002   // 배포본 ⑨: 3번 주의 점검 오답 = 불성실 · 나이 · 구매 0회 = 스크리닝 탈락
 }
 /* 중복 참여 막기: 끝난 표시를 localStorage와 쿠키 두 곳에 남기고, 둘 중 하나라도 있으면 막아요 */
 const DONE_COOKIE = 'sbcx_done';
@@ -3766,9 +3792,9 @@ function fbSession(){ const s = JSON.parse(JSON.stringify(S)); delete s._ck; del
 function fbLive(extra){
   const st = steps[S.stepIdx];
   return Object.assign({pid:S.pid, pilot:S.pilot?1:0, src:S.src||'', cell:S.cellPending ? 0 : S.cond.cell, group:S.cellPending ? 0 : S.cond.group, stepIdx:S.stepIdx, nSteps:steps.length, step:st?st.id:'', stage:st?st.stage:'', kind:st?st.kind:'',
-    t_ms:elapsed(), at:new Date().toISOString(), startedAt:S.startedAt, done:!!S.done, submitted:!!S.submitted, status:S.status||'', screenReason:S.screenReason||'', dev:S.dev?1:0, resumed:S.resumed||0, ver:verShort(), sex:quotaG(), ageBand:S.ageBand || '', valid:S.submitted ? (badReason() ? 0 : 1) : 0, bad:S.submitted ? badReason() : ''}, extra || {});
+    t_ms:elapsed(), at:new Date().toISOString(), startedAt:S.startedAt, done:!!S.done, submitted:!!S.submitted, status:S.status||'', screenReason:S.screenReason||'', dev:S.dev?1:0, resumed:S.resumed||0, ver:verShort(), sex:quotaG(), ageBand:S.ageBand || '', valid:finValid != null ? finValid : S.submitted ? (badReason() ? 0 : 1) : 0, bad:finValid != null ? finBad : S.submitted ? badReason() : ''}, extra || {});   // 배포본 ㉒: 끝낼 때 정한 값 먼저(제출 중 다른 저장이 0으로 덮지 않게)
 }
-let fbTimer = null, fbDirty = false;
+let fbTimer = null, fbDirty = false, finValid = null, finBad = '';   // 배포본 ㉒: finValid · finBad = 제출할 때 한 번 정한 완료 인정 · 이유
 function fbSync(force){   // 세션 전체 + 진행 상태 (2초에 한 번) · 배정(참여 번호 확정) 뒤부터
   if (!S || !S.assigned || restarting || !fbReady()) return;
   fbDirty = true;
@@ -4047,6 +4073,7 @@ async function doSubmit(){
   log('submit_all', {lottery: !!phone});
   const row = buildRow();
   S.activeSec = Math.max(0, (row.total_sec || 0) - (row.leave_sec || 0));   // 배포본 ⑨: 끝낸 시간 − 화면 이탈(불성실 160초 판단 · 사전등록과 같은 계산)
+  finBad = badReason(); finValid = finBad ? 0 : 1;   // 배포본 ㉒: 이 값으로 live · 칸 기록 · 엠브레인 주소를 모두 같게
   const recs = load(KEY_RECORDS) || []; recs.push(exportJSON()); store(KEY_RECORDS, recs);
   const lot = {pid:S.pid, phone, ph_hash:S.phoneHash || '', att_all_ok:row.att_all_ok, at:S.finishedAt};
   if (phone){ const l = load(KEY_LOTTERY) || []; l.push(lot); store(KEY_LOTTERY, l); }
@@ -4054,7 +4081,7 @@ async function doSubmit(){
   await quotaCount();   // 배포본 ⑭: 완료(001)로 갈 사람만 성별 쿼터 + 1
   await assign2Finish();   // 배포본 ⑯: 칸 자리 반환 · 유효 완료면 칸 수에 듦(fin.ok = 1)
   mini2Finish();
-  await sheetSave(row, lot);   // 배포본 ⑮: 그다음 구글 시트 · 드라이브(백업) — 최대 6초
+  bkSave = sheetSave(row, lot);   // 배포본 ㉒: 구글 시트 · 드라이브 백업은 뒤에서(끝 화면을 기다리게 하지 않음) · 엠브레인으로 갈 때 최대 6초 기다림(panelGo)   // 배포본 ⑮
   try{ if (window.parent !== window) window.parent.postMessage({type:'SBCX_COMPLETE', row}, '*'); }catch(e){}
   S.submitted = true;
   if (!DEV && ONE_TIME) markDone({pid:S.pid, at:S.finishedAt, panelId:S.panelId || ''});
